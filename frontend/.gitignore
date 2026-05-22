@@ -1,0 +1,17 @@
+# Dépendances
+node_modules/
+
+# Build Angular
+dist/
+.angular/cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

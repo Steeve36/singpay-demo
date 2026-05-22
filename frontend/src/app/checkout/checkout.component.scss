@@ -1,0 +1,365 @@
+// checkout.component.scss
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+$green:    #0D7A4E;
+$green-lt: #E6F5EE;
+$green-md: #1D9E75;
+$ink:      #1A1A1A;
+$muted:    #6B6B6B;
+$border:   #E2E2E2;
+$bg:       #F7F6F2;
+$white:    #FFFFFF;
+$red:      #C0392B;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.checkout-page {
+  min-height: 100vh;
+  background: $bg;
+  font-family: 'DM Sans', sans-serif;
+  color: $ink;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Header ─────────────────────────────────────────────
+.checkout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2.5rem;
+  background: $white;
+  border-bottom: 1px solid $border;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $green-md;
+  }
+
+  &-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: $ink;
+  }
+}
+
+.brand-secure {
+  font-size: 0.78rem;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+// ── Body layout ────────────────────────────────────────
+.checkout-body {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 0;
+  flex: 1;
+  max-width: 960px;
+  margin: 3rem auto;
+  width: 100%;
+  padding: 0 1.5rem;
+  align-items: start;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+    margin: 1.5rem auto;
+  }
+}
+
+// ── Order summary ──────────────────────────────────────
+.order-summary {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 2rem;
+  position: sticky;
+  top: 2rem;
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $muted;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.cart-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  &-qty {
+    font-size: 0.78rem;
+    color: $muted;
+  }
+
+  &-price {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 2px solid $ink;
+  margin-top: 0.5rem;
+
+  span { font-size: 0.85rem; color: $muted; }
+
+  strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $green;
+  }
+}
+
+.operators-logos {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid $border;
+}
+
+.accepted-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $muted;
+  margin-bottom: 0.75rem;
+}
+
+.logos-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.op-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border: 1px solid $border;
+
+  &.airtel {
+    background: #FFF3E0;
+    color: #E65100;
+    border-color: #FFCC80;
+  }
+  &.moov {
+    background: #E3F2FD;
+    color: #1565C0;
+    border-color: #90CAF9;
+  }
+  &.mav {
+    background: $green-lt;
+    color: $green;
+    border-color: #A5D6C0;
+  }
+}
+
+// ── Payment form ───────────────────────────────────────
+.payment-form {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 2rem 2.5rem;
+  margin-left: 1.5rem;
+
+  @media (max-width: 720px) {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: $ink;
+    margin-bottom: 1.75rem;
+  }
+}
+
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: $red;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+
+  .alert-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $red;
+    color: $white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid $border;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'DM Sans', sans-serif;
+    color: $ink;
+    background: $white;
+    transition: border-color 0.15s;
+    outline: none;
+
+    &:focus {
+      border-color: $green-md;
+    }
+
+    &::placeholder { color: #BDBDBD; }
+  }
+}
+
+.ref-display {
+  padding: 0.65rem 1rem;
+  background: $bg;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: $muted;
+  letter-spacing: 0.04em;
+}
+
+// ── Bouton payer ───────────────────────────────────────
+.btn-pay {
+  width: 100%;
+  padding: 1rem;
+  background: $green;
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: darken($green, 8%);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: #A8C5B8;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    background: #A8C5B8;
+    cursor: not-allowed;
+  }
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.legal-note {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: $muted;
+  line-height: 1.6;
+  text-align: center;
+}

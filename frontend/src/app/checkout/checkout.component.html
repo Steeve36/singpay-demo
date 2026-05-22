@@ -1,0 +1,116 @@
+<section class="checkout-page">
+
+  <!-- En-tête -->
+  <header class="checkout-header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">MonApp</span>
+    </div>
+    <p class="brand-secure">
+      <i class="icon-lock"></i> Paiement sécurisé via SingPay
+    </p>
+  </header>
+
+  <div class="checkout-body">
+
+    <!-- Récapitulatif commande -->
+    <aside class="order-summary">
+      <h2>Récapitulatif</h2>
+
+      <ul class="cart-list">
+        <li *ngFor="let item of cart" class="cart-item">
+          <div class="cart-item-info">
+            <span class="cart-item-name">{{ item.name }}</span>
+            <span class="cart-item-qty">× {{ item.qty }}</span>
+          </div>
+          <span class="cart-item-price">
+            {{ (item.price * item.qty).toLocaleString('fr-FR') }} FCFA
+          </span>
+        </li>
+      </ul>
+
+      <div class="order-total">
+        <span>Total</span>
+        <strong>{{ totalFormatted }}</strong>
+      </div>
+
+      <div class="operators-logos">
+        <p class="accepted-label">Opérateurs acceptés</p>
+        <div class="logos-row">
+          <div class="op-badge airtel">Airtel Money</div>
+          <div class="op-badge moov">Moov Money</div>
+          <div class="op-badge mav">Maviance</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Formulaire de paiement -->
+    <main class="payment-form">
+      <h2>Informations de paiement</h2>
+
+      <!-- Erreur -->
+      <div *ngIf="errorMsg" class="alert-error">
+        <span class="alert-icon">!</span>
+        {{ errorMsg }}
+      </div>
+
+      <form (ngSubmit)="pay()" #payForm="ngForm" novalidate>
+
+        <div class="field">
+          <label for="name">Nom complet</label>
+          <input
+            id="name"
+            type="text"
+            [(ngModel)]="customerName"
+            name="customerName"
+            placeholder="Jean Dupont"
+            required
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="field">
+          <label for="email">Adresse e-mail</label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="customerEmail"
+            name="customerEmail"
+            placeholder="jean@exemple.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field">
+          <label>Référence commande</label>
+          <div class="ref-display">{{ reference }}</div>
+        </div>
+
+        <!-- Bouton principal -->
+        <button
+          type="submit"
+          class="btn-pay"
+          [disabled]="!isFormValid"
+          [class.loading]="loading"
+        >
+          <span *ngIf="!loading">
+            Payer {{ totalFormatted }} →
+          </span>
+          <span *ngIf="loading" class="spinner-row">
+            <span class="spinner"></span>
+            Redirection en cours...
+          </span>
+        </button>
+
+      </form>
+
+      <p class="legal-note">
+        En cliquant sur Payer, vous serez redirigé vers la page de paiement
+        sécurisée SingPay pour finaliser votre transaction Mobile Money.
+      </p>
+    </main>
+
+  </div>
+
+</section>

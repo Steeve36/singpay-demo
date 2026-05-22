@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: singpay-demo
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/singpay_demo?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:Dany2011Maman1987@1}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update        # En prod : utiliser 'validate' + Flyway/Liquibase
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+server:
+  port: 8080
+
+# ── Variables SingPay ─────────────────────────────────────────────────────────
+singpay:
+  base-url: https://gateway.singpay.ga/v1
+  client-id: ${SINGPAY_CLIENT_ID:demo-client-id}
+  client-secret: ${SINGPAY_CLIENT_SECRET:demo-client-secret}
+  wallet-id: ${SINGPAY_WALLET_ID:demo-wallet-id}
+  disbursement-id: ${SINGPAY_DISBURSEMENT_ID:}
+
+# ── URL de base de ton application (pour les redirects SingPay) ──────────────
+app:
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.demo.singpay: DEBUG
+    org.springframework.web.client: DEBUG
+
+---
+# Profil production
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.demo.singpay: INFO
+    org.springframework.web.client: WARN
