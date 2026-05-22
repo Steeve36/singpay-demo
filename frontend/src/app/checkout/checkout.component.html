@@ -1,16 +1,22 @@
 <section class="checkout-page">
 
-  <!-- En-tête -->
+  <!-- Header -->
   <header class="checkout-header">
     <div class="brand">
-      <span class="brand-dot"></span>
-      <span class="brand-name">MonApp</span>
+      <span class="brand-mark"></span>
+      <span class="brand-name">QTZ-App</span>
     </div>
-    <p class="brand-secure">
-      <i class="icon-lock"></i> Paiement sécurisé via SingPay
-    </p>
+    <div class="header-secure">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <rect x="3" y="11" width="18" height="11" rx="0"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Paiement sécurisé via SingPay
+    </div>
   </header>
 
+  <!-- Body -->
   <div class="checkout-body">
 
     <!-- Récapitulatif commande -->
@@ -21,7 +27,7 @@
         <li *ngFor="let item of cart" class="cart-item">
           <div class="cart-item-info">
             <span class="cart-item-name">{{ item.name }}</span>
-            <span class="cart-item-qty">× {{ item.qty }}</span>
+            <span class="cart-item-qty">Qté : {{ item.qty }}</span>
           </div>
           <span class="cart-item-price">
             {{ (item.price * item.qty).toLocaleString('fr-FR') }} FCFA
@@ -37,9 +43,9 @@
       <div class="operators-logos">
         <p class="accepted-label">Opérateurs acceptés</p>
         <div class="logos-row">
-          <div class="op-badge airtel">Airtel Money</div>
-          <div class="op-badge moov">Moov Money</div>
-          <div class="op-badge mav">Maviance</div>
+          <span class="op-badge">Airtel Money</span>
+          <span class="op-badge">Moov Money</span>
+          <span class="op-badge">Maviance</span>
         </div>
       </div>
     </aside>
@@ -87,19 +93,16 @@
           <div class="ref-display">{{ reference }}</div>
         </div>
 
-        <!-- Bouton principal -->
         <button
           type="submit"
           class="btn-pay"
           [disabled]="!isFormValid"
           [class.loading]="loading"
         >
-          <span *ngIf="!loading">
-            Payer {{ totalFormatted }} →
-          </span>
+          <span *ngIf="!loading">Payer {{ totalFormatted }}</span>
           <span *ngIf="loading" class="spinner-row">
             <span class="spinner"></span>
-            Redirection en cours...
+            Redirection en cours…
           </span>
         </button>
 
@@ -112,5 +115,16 @@
     </main>
 
   </div>
+
+  <!-- Footer -->
+  <footer class="checkout-footer">
+    <span>© 2025 QTZ-App</span>
+    <span class="footer-sep"></span>
+    <a href="#">Conditions d'utilisation</a>
+    <span class="footer-sep"></span>
+    <a href="#">Confidentialité</a>
+    <span class="footer-sep"></span>
+    <span>Paiement sécurisé par SingPay</span>
+  </footer>
 
 </section>

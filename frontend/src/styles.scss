@@ -1,10 +1,28 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary:     #00653C;
+  --primary-dk:  #004d2d;
+  --secondary:   #FFC900;
+  --bg-alt:      #CEFFEB;
+  --bg:          #FFFFFF;
+  --text:        #1A1A1A;
+  --text-muted:  #555555;
+  --border:      #E0E0E0;
+  --error:       #DC2626;
+  --shadow:      0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: #F7F6F2;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }

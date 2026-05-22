@@ -1,98 +1,100 @@
-// checkout.component.scss
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-
-$green:    #0D7A4E;
-$green-lt: #E6F5EE;
-$green-md: #1D9E75;
-$ink:      #1A1A1A;
-$muted:    #6B6B6B;
-$border:   #E2E2E2;
-$bg:       #F7F6F2;
-$white:    #FFFFFF;
-$red:      #C0392B;
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$error:      #DC2626;
+$shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
 
 .checkout-page {
   min-height: 100vh;
-  background: $bg;
-  font-family: 'DM Sans', sans-serif;
-  color: $ink;
+  background: $white;
+  font-family: 'Inter', sans-serif;
+  color: $text;
   display: flex;
   flex-direction: column;
 }
 
-// ── Header ─────────────────────────────────────────────
+// ── Header ─────────────────────────────────────────────────────────────
 .checkout-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 2.5rem;
+  padding: 0 2rem;
+  height: 60px;
   background: $white;
-  border-bottom: 1px solid $border;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
 
-  &-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: $green-md;
+  &-mark {
+    width: 24px;
+    height: 24px;
+    background: $primary;
+    flex-shrink: 0;
   }
 
   &-name {
-    font-family: 'Syne', sans-serif;
     font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: -0.02em;
-    color: $ink;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    color: $text;
   }
 }
 
-.brand-secure {
-  font-size: 0.78rem;
-  color: $muted;
+.header-secure {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 0.03em;
 }
 
-// ── Body layout ────────────────────────────────────────
+// ── Main layout ─────────────────────────────────────────────────────────
 .checkout-body {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 0;
-  flex: 1;
-  max-width: 960px;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 2rem;
+  max-width: 1000px;
   margin: 3rem auto;
   width: 100%;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   align-items: start;
+  flex: 1;
 
-  @media (max-width: 720px) {
+  @media (max-width: 740px) {
     grid-template-columns: 1fr;
     margin: 1.5rem auto;
+    gap: 1rem;
   }
 }
 
-// ── Order summary ──────────────────────────────────────
+// ── Order Summary ───────────────────────────────────────────────────────
 .order-summary {
   background: $white;
   border: 1px solid $border;
-  border-radius: 14px;
-  padding: 2rem;
+  box-shadow: $shadow;
+  padding: 1.75rem;
   position: sticky;
-  top: 2rem;
+  top: calc(60px + 2rem);
 
   h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: $muted;
     margin-bottom: 1.25rem;
@@ -101,10 +103,7 @@ $red:      #C0392B;
 
 .cart-list {
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .cart-item {
@@ -112,34 +111,34 @@ $red:      #C0392B;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  padding-bottom: 0.75rem;
+  padding: 0.85rem 0;
   border-bottom: 1px solid $border;
 
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
+  &:first-child { padding-top: 0; }
+  &:last-child  { border-bottom: none; }
 
   &-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
   }
 
   &-name {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 500;
+    color: $text;
   }
 
   &-qty {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: $muted;
   }
 
   &-price {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.88rem;
+    font-weight: 600;
     white-space: nowrap;
+    color: $text;
   }
 }
 
@@ -147,17 +146,22 @@ $red:      #C0392B;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  border-top: 2px solid $ink;
-  margin-top: 0.5rem;
+  padding: 1rem 0 0;
+  border-top: 2px solid $text;
+  margin-top: 0.25rem;
 
-  span { font-size: 0.85rem; color: $muted; }
+  span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $muted;
+  }
 
   strong {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: $green;
+    color: $primary;
   }
 }
 
@@ -168,63 +172,50 @@ $red:      #C0392B;
 }
 
 .accepted-label {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: $muted;
   margin-bottom: 0.75rem;
 }
 
 .logos-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .op-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  border: 1px solid $border;
-
-  &.airtel {
-    background: #FFF3E0;
-    color: #E65100;
-    border-color: #FFCC80;
-  }
-  &.moov {
-    background: #E3F2FD;
-    color: #1565C0;
-    border-color: #90CAF9;
-  }
-  &.mav {
-    background: $green-lt;
-    color: $green;
-    border-color: #A5D6C0;
-  }
+  padding: 5px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: $secondary;
+  color: $text;
+  border: none;
 }
 
-// ── Payment form ───────────────────────────────────────
+// ── Payment form ─────────────────────────────────────────────────────────
 .payment-form {
   background: $white;
   border: 1px solid $border;
-  border-radius: 14px;
-  padding: 2rem 2.5rem;
-  margin-left: 1.5rem;
+  box-shadow: $shadow;
+  padding: 2rem 2.25rem;
 
-  @media (max-width: 720px) {
-    margin-left: 0;
-    margin-top: 1rem;
+  @media (max-width: 740px) {
+    padding: 1.5rem;
   }
 
   h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: $ink;
-    margin-bottom: 1.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $border;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -233,20 +224,18 @@ $red:      #C0392B;
   align-items: center;
   gap: 10px;
   background: #FEF2F2;
-  border: 1px solid #FECACA;
-  border-radius: 8px;
+  border-left: 3px solid $error;
   padding: 0.75rem 1rem;
-  color: $red;
-  font-size: 0.85rem;
+  color: $error;
+  font-size: 0.83rem;
   margin-bottom: 1.25rem;
 
   .alert-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: $red;
+    width: 18px;
+    height: 18px;
+    background: $error;
     color: $white;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -262,77 +251,71 @@ $red:      #C0392B;
   margin-bottom: 1.25rem;
 
   label {
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: $muted;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
   }
 
   input {
-    padding: 0.75rem 1rem;
-    border: 1.5px solid $border;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: 'DM Sans', sans-serif;
-    color: $ink;
+    padding: 0.8rem 1rem;
+    border: 1px solid $border;
+    border-radius: 0;
+    font-size: 0.93rem;
+    font-family: 'Inter', sans-serif;
+    color: $text;
     background: $white;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     outline: none;
 
     &:focus {
-      border-color: $green-md;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(0, 101, 60, 0.1);
     }
 
-    &::placeholder { color: #BDBDBD; }
+    &::placeholder { color: #C0C0C0; }
   }
 }
 
 .ref-display {
-  padding: 0.65rem 1rem;
-  background: $bg;
-  border: 1.5px solid $border;
-  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: $bg-alt;
+  border: 1px solid $border;
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: $muted;
   letter-spacing: 0.04em;
 }
 
-// ── Bouton payer ───────────────────────────────────────
+// ── CTA Button ───────────────────────────────────────────────────────────
 .btn-pay {
   width: 100%;
   padding: 1rem;
-  background: $green;
+  background: $primary;
   color: $white;
   border: none;
-  border-radius: 10px;
-  font-family: 'Syne', sans-serif;
-  font-size: 1rem;
+  border-radius: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  margin-top: 0.5rem;
+  transition: background 0.15s;
+  margin-top: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
   &:hover:not(:disabled) {
-    background: darken($green, 8%);
+    background: $primary-dk;
   }
 
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-
-  &:disabled {
-    background: #A8C5B8;
-    cursor: not-allowed;
-  }
-
+  &:disabled,
   &.loading {
-    background: #A8C5B8;
+    background: #8aad9f;
     cursor: not-allowed;
   }
 }
@@ -344,22 +327,47 @@ $red:      #C0392B;
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255,255,255,0.4);
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: $white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .legal-note {
   margin-top: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: $muted;
   line-height: 1.6;
   text-align: center;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────
+.checkout-footer {
+  background: $white;
+  border-top: 1px solid $border;
+  padding: 1.25rem 2rem;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+
+  span, a {
+    font-size: 0.72rem;
+    color: $muted;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+
+    &:hover { color: $text; }
+  }
+
+  .footer-sep {
+    width: 1px;
+    height: 12px;
+    background: $border;
+  }
 }

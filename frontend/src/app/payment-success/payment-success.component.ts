@@ -21,151 +21,262 @@ interface Order {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <section class="page">
+    <div class="layout">
 
-      <!-- Chargement / attente webhook -->
-      <div class="card" *ngIf="state === 'loading'">
-        <div class="spinner"></div>
-        <h2>Vérification du paiement…</h2>
-        <p class="sub">Confirmation en cours, merci de patienter.</p>
-      </div>
-
-      <!-- Succès confirmé -->
-      <div class="card" *ngIf="state === 'success' && order">
-        <div class="icon success-icon">
-          <svg viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="26" fill="#E6F5EE"/>
-            <path d="M15 26.5L22.5 34L37 19" stroke="#0D7A4E" stroke-width="3"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Header -->
+      <header class="header">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">QTZ-App</span>
+        </div>
+        <div class="header-secure">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="square">
+            <rect x="3" y="11" width="18" height="11" rx="0"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
+          Paiement sécurisé
+        </div>
+      </header>
+
+      <!-- Contenu -->
+      <main class="content">
+
+        <!-- Chargement -->
+        <div class="card" *ngIf="state === 'loading'">
+          <div class="loader">
+            <div class="loader-bar"></div>
+          </div>
+          <h2>Vérification du paiement…</h2>
+          <p class="sub">Confirmation en cours, merci de patienter.</p>
         </div>
 
-        <h1>Paiement confirmé</h1>
-        <p class="sub">Votre transaction a été validée avec succès.</p>
+        <!-- Succès -->
+        <div class="card" *ngIf="state === 'success' && order">
+          <div class="status-badge success-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
 
-        <div class="receipt">
-          <div class="receipt-row">
-            <span>Référence</span>
-            <strong>{{ order.reference }}</strong>
+          <h1>Paiement confirmé</h1>
+          <p class="sub">Votre transaction a été validée avec succès.</p>
+
+          <div class="receipt">
+            <div class="receipt-row">
+              <span>Référence</span>
+              <strong>{{ order.reference }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Client</span>
+              <strong>{{ order.customerName }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Email</span>
+              <strong>{{ order.customerEmail }}</strong>
+            </div>
+            <div class="receipt-row amount-row">
+              <span>Montant payé</span>
+              <strong class="amount">{{ order.amount | number:'1.0-0' }} FCFA</strong>
+            </div>
+            <div class="receipt-row" *ngIf="order.airtelMoneyId">
+              <span>ID transaction</span>
+              <strong>{{ order.airtelMoneyId }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Date</span>
+              <strong>{{ order.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</strong>
+            </div>
           </div>
-          <div class="receipt-row">
-            <span>Client</span>
-            <strong>{{ order.customerName }}</strong>
-          </div>
-          <div class="receipt-row">
-            <span>Email</span>
-            <strong>{{ order.customerEmail }}</strong>
-          </div>
-          <div class="receipt-row amount-row">
-            <span>Montant payé</span>
-            <strong class="amount">{{ order.amount | number:'1.0-0' }} FCFA</strong>
-          </div>
-          <div class="receipt-row" *ngIf="order.airtelMoneyId">
-            <span>ID transaction</span>
-            <strong>{{ order.airtelMoneyId }}</strong>
-          </div>
-          <div class="receipt-row">
-            <span>Date</span>
-            <strong>{{ order.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</strong>
-          </div>
+
+          <a routerLink="/checkout" class="btn-primary">Nouveau paiement</a>
         </div>
 
-        <a routerLink="/checkout" class="btn-primary">Nouveau paiement</a>
-      </div>
+        <!-- Timeout -->
+        <div class="card" *ngIf="state === 'timeout'">
+          <div class="status-badge pending-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square">
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+              <rect x="2" y="2" width="20" height="20" rx="0"/>
+            </svg>
+          </div>
 
-      <!-- Timeout : webhook pas encore reçu après 30 s -->
-      <div class="card" *ngIf="state === 'timeout'">
-        <div class="icon warning-icon">
-          <svg viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="26" fill="#FFF8E1"/>
-            <path d="M26 16v12" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="26" cy="35" r="2" fill="#F59E0B"/>
-          </svg>
+          <h1>Paiement en cours</h1>
+          <p class="sub">
+            La confirmation prend plus de temps que prévu.<br>
+            Si le paiement a été effectué, votre commande sera traitée automatiquement.
+          </p>
+
+          <div class="receipt" *ngIf="order">
+            <div class="receipt-row">
+              <span>Référence</span>
+              <strong>{{ order.reference }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Statut</span>
+              <span class="badge badge-pending">En attente</span>
+            </div>
+          </div>
+
+          <a routerLink="/checkout" class="btn-secondary">Retour à l'accueil</a>
         </div>
 
-        <h1>Paiement en cours</h1>
-        <p class="sub">
-          La confirmation prend plus de temps que prévu.<br>
-          Si le paiement a bien été effectué, votre commande sera traitée automatiquement.
-        </p>
+      </main>
 
-        <div class="receipt" *ngIf="order">
-          <div class="receipt-row">
-            <span>Référence</span>
-            <strong>{{ order.reference }}</strong>
-          </div>
-          <div class="receipt-row">
-            <span>Statut actuel</span>
-            <span class="badge-pending">En attente</span>
-          </div>
-        </div>
+      <!-- Footer -->
+      <footer class="footer">
+        <span>© 2025 QTZ-App</span>
+        <span class="sep"></span>
+        <span>Paiement sécurisé par SingPay</span>
+      </footer>
 
-        <a routerLink="/checkout" class="btn-secondary">Retour à l'accueil</a>
-      </div>
-
-    </section>
+    </div>
   `,
   styles: [`
-    .page {
+    .layout {
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #1A1A1A;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .header {
+      height: 60px;
+      background: #FFFFFF;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      background: #00653C;
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1A1A1A;
+    }
+
+    .header-secure {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #555555;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Content ─────────────────────────────────────────────── */
+    .content {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #F7F6F2;
-      padding: 2rem;
-      font-family: 'DM Sans', system-ui, sans-serif;
+      padding: 3rem 1.5rem;
+      background: #F5F5F5;
     }
 
     .card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #E2E2E2;
-      padding: 3rem 2.5rem;
+      background: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2.75rem 2.25rem;
       max-width: 460px;
       width: 100%;
       text-align: center;
     }
 
-    /* Spinner */
-    .spinner {
+    /* ── Loader ──────────────────────────────────────────────── */
+    .loader {
       width: 48px;
-      height: 48px;
-      border: 4px solid #E2E2E2;
-      border-top-color: #0D7A4E;
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+      height: 4px;
+      background: #E0E0E0;
+      margin: 0 auto 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loader-bar {
+      position: absolute;
+      height: 100%;
+      width: 40%;
+      background: #00653C;
+      animation: loading 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0%   { left: -40%; }
+      100% { left: 100%; }
+    }
+
+    /* ── Status badges ───────────────────────────────────────── */
+    .status-badge {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin: 0 auto 1.5rem;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .icon { margin-bottom: 1.5rem; svg { width: 64px; height: 64px; } }
+    .success-badge {
+      background: #CEFFEB;
+      color: #00653C;
+    }
 
+    .pending-badge {
+      background: #FFF8E1;
+      color: #FFC900;
+    }
+
+    /* ── Typography ──────────────────────────────────────────── */
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: #1A1A1A;
       margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
     }
 
     h2 {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: #1A1A1A;
       margin: 0 0 0.5rem;
     }
 
     .sub {
-      font-size: 0.9rem;
-      color: #6B6B6B;
+      font-size: 0.88rem;
+      color: #555555;
       margin-bottom: 2rem;
       line-height: 1.6;
     }
 
+    /* ── Receipt ─────────────────────────────────────────────── */
     .receipt {
       text-align: left;
-      background: #F7F6F2;
-      border-radius: 10px;
-      padding: 0.25rem 1.25rem;
+      background: #F7FFF9;
+      border: 1px solid #E0E0E0;
+      padding: 0 1.25rem;
       margin-bottom: 2rem;
     }
 
@@ -173,53 +284,105 @@ interface Order {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid #E2E2E2;
-      font-size: 0.85rem;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #E0E0E0;
+      font-size: 0.83rem;
       gap: 1rem;
-
-      &:last-child { border-bottom: none; }
-
-      span:first-child { color: #6B6B6B; white-space: nowrap; }
-      strong { font-weight: 500; text-align: right; word-break: break-all; }
     }
 
-    .amount { color: #0D7A4E; font-size: 1.05rem !important; font-weight: 600 !important; }
+    .receipt-row:last-child { border-bottom: none; }
+
+    .receipt-row span:first-child {
+      color: #555555;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    .receipt-row strong {
+      font-weight: 500;
+      text-align: right;
+      word-break: break-all;
+      color: #1A1A1A;
+    }
+
+    .amount {
+      color: #00653C !important;
+      font-size: 1rem !important;
+      font-weight: 700 !important;
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+    }
 
     .badge-pending {
-      background: #FFF8E1;
-      color: #B45309;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 500;
+      background: #FFC900;
+      color: #1A1A1A;
     }
 
+    /* ── Buttons ─────────────────────────────────────────────── */
     .btn-primary {
       display: inline-block;
-      padding: 0.8rem 2.5rem;
-      background: #1A1A1A;
-      color: #fff;
-      border-radius: 8px;
+      padding: 0.85rem 2.5rem;
+      background: #00653C;
+      color: #FFFFFF;
+      border: none;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       transition: background 0.15s;
-      &:hover { background: #333; }
+      font-family: 'Inter', sans-serif;
     }
+
+    .btn-primary:hover { background: #004d2d; }
 
     .btn-secondary {
       display: inline-block;
-      padding: 0.8rem 2.5rem;
+      padding: 0.85rem 2.5rem;
       background: transparent;
-      color: #1A1A1A;
-      border: 1.5px solid #E2E2E2;
-      border-radius: 8px;
+      color: #00653C;
+      border: 2px solid #00653C;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: border-color 0.15s;
-      &:hover { border-color: #1A1A1A; }
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-secondary:hover {
+      background: #00653C;
+      color: #FFFFFF;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .footer {
+      background: #FFFFFF;
+      border-top: 1px solid #E0E0E0;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .footer span {
+      font-size: 0.72rem;
+      color: #555555;
+    }
+
+    .sep {
+      width: 1px;
+      height: 12px;
+      background: #E0E0E0 !important;
     }
   `]
 })

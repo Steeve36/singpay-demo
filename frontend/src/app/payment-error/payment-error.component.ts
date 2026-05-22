@@ -25,104 +25,197 @@ const ERROR_MESSAGES: Record<string, string> = {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <section class="page">
-      <div class="card">
+    <div class="layout">
 
-        <div class="icon">
-          <svg viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="26" fill="#FEF2F2"/>
-            <path d="M17 17L35 35M35 17L17 35" stroke="#DC2626" stroke-width="3"
-                  stroke-linecap="round"/>
+      <!-- Header -->
+      <header class="header">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">QTZ-App</span>
+        </div>
+        <div class="header-secure">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="square">
+            <rect x="3" y="11" width="18" height="11" rx="0"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
+          Paiement sécurisé
         </div>
+      </header>
 
-        <h1>Paiement échoué</h1>
-        <p class="sub">{{ errorMessage }}</p>
+      <!-- Contenu -->
+      <main class="content">
+        <div class="card">
 
-        <div class="receipt" *ngIf="order">
-          <div class="receipt-row">
-            <span>Référence</span>
-            <strong>{{ order.reference }}</strong>
+          <div class="status-badge error-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
           </div>
-          <div class="receipt-row">
-            <span>Client</span>
-            <strong>{{ order.customerName }}</strong>
+
+          <h1>Paiement échoué</h1>
+          <p class="sub">{{ errorMessage }}</p>
+
+          <div class="receipt" *ngIf="order">
+            <div class="receipt-row">
+              <span>Référence</span>
+              <strong>{{ order.reference }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Client</span>
+              <strong>{{ order.customerName }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Email</span>
+              <strong>{{ order.customerEmail }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Montant</span>
+              <strong class="amount">{{ order.amount | number:'1.0-0' }} FCFA</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Date</span>
+              <strong>{{ order.createdAt | date:'dd/MM/yyyy à HH:mm' }}</strong>
+            </div>
+            <div class="receipt-row">
+              <span>Statut</span>
+              <span class="badge badge-error">Échec</span>
+            </div>
           </div>
-          <div class="receipt-row">
-            <span>Email</span>
-            <strong>{{ order.customerEmail }}</strong>
+
+          <div class="receipt skeleton" *ngIf="!order && reference">
+            <div class="receipt-row">
+              <span>Référence</span>
+              <strong>{{ reference }}</strong>
+            </div>
           </div>
-          <div class="receipt-row amount-row">
-            <span>Montant</span>
-            <strong class="amount">{{ order.amount | number:'1.0-0' }} FCFA</strong>
+
+          <div class="actions">
+            <a routerLink="/checkout" class="btn-primary">Réessayer</a>
+            <a routerLink="/" class="btn-secondary">Accueil</a>
           </div>
-          <div class="receipt-row">
-            <span>Date</span>
-            <strong>{{ order.createdAt | date:'dd/MM/yyyy à HH:mm' }}</strong>
-          </div>
-          <div class="receipt-row">
-            <span>Statut</span>
-            <span class="badge-error">Échec</span>
-          </div>
+
         </div>
+      </main>
 
-        <div class="receipt skeleton" *ngIf="!order && reference">
-          <div class="receipt-row">
-            <span>Référence</span>
-            <strong>{{ reference }}</strong>
-          </div>
-        </div>
+      <!-- Footer -->
+      <footer class="footer">
+        <span>© 2025 QTZ-App</span>
+        <span class="sep"></span>
+        <span>Paiement sécurisé par SingPay</span>
+      </footer>
 
-        <div class="actions">
-          <a routerLink="/checkout" class="btn-retry">Réessayer</a>
-          <a routerLink="/" class="btn-secondary">Accueil</a>
-        </div>
-
-      </div>
-    </section>
+    </div>
   `,
   styles: [`
-    .page {
+    .layout {
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      color: #1A1A1A;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .header {
+      height: 60px;
+      background: #FFFFFF;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      background: #00653C;
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1A1A1A;
+    }
+
+    .header-secure {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #555555;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Content ─────────────────────────────────────────────── */
+    .content {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #F7F6F2;
-      padding: 2rem;
-      font-family: 'DM Sans', system-ui, sans-serif;
+      padding: 3rem 1.5rem;
+      background: #F5F5F5;
     }
 
     .card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #E2E2E2;
-      padding: 3rem 2.5rem;
+      background: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2.75rem 2.25rem;
       max-width: 460px;
       width: 100%;
       text-align: center;
     }
 
-    .icon { margin-bottom: 1.5rem; svg { width: 64px; height: 64px; } }
+    /* ── Status badge ────────────────────────────────────────── */
+    .status-badge {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
 
+    .error-badge {
+      background: #FEF2F2;
+      color: #DC2626;
+    }
+
+    /* ── Typography ──────────────────────────────────────────── */
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: #1A1A1A;
       margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
     }
 
     .sub {
-      font-size: 0.9rem;
-      color: #6B6B6B;
+      font-size: 0.88rem;
+      color: #555555;
       margin-bottom: 2rem;
       line-height: 1.6;
     }
 
+    /* ── Receipt ─────────────────────────────────────────────── */
     .receipt {
       text-align: left;
-      background: #F7F6F2;
-      border-radius: 10px;
-      padding: 0.25rem 1.25rem;
+      background: #FEF2F2;
+      border: 1px solid #E0E0E0;
+      padding: 0 1.25rem;
       margin-bottom: 2rem;
     }
 
@@ -130,57 +223,111 @@ const ERROR_MESSAGES: Record<string, string> = {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid #E2E2E2;
-      font-size: 0.85rem;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #E0E0E0;
+      font-size: 0.83rem;
       gap: 1rem;
-
-      &:last-child { border-bottom: none; }
-
-      span:first-child { color: #6B6B6B; white-space: nowrap; }
-      strong { font-weight: 500; text-align: right; word-break: break-all; }
     }
 
-    .amount { color: #DC2626; font-size: 1.05rem !important; font-weight: 600 !important; }
+    .receipt-row:last-child { border-bottom: none; }
+
+    .receipt-row span:first-child {
+      color: #555555;
+      white-space: nowrap;
+    }
+
+    .receipt-row strong {
+      font-weight: 500;
+      text-align: right;
+      word-break: break-all;
+      color: #1A1A1A;
+    }
+
+    .amount {
+      color: #DC2626 !important;
+      font-weight: 600 !important;
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+    }
 
     .badge-error {
       background: #FEF2F2;
       color: #DC2626;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 500;
+      border: 1px solid #FECACA;
     }
 
+    /* ── Actions ─────────────────────────────────────────────── */
     .actions {
       display: flex;
       gap: 10px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .btn-retry {
-      padding: 0.8rem 1.8rem;
-      background: #DC2626;
-      color: #fff;
-      border-radius: 8px;
+    .btn-primary {
+      display: inline-block;
+      padding: 0.85rem 2rem;
+      background: #00653C;
+      color: #FFFFFF;
+      border: 2px solid #00653C;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       transition: background 0.15s;
-      &:hover { background: #B91C1C; }
+      font-family: 'Inter', sans-serif;
     }
+
+    .btn-primary:hover { background: #004d2d; border-color: #004d2d; }
 
     .btn-secondary {
-      padding: 0.8rem 1.8rem;
+      display: inline-block;
+      padding: 0.85rem 2rem;
       background: transparent;
-      color: #1A1A1A;
-      border: 1.5px solid #E2E2E2;
-      border-radius: 8px;
+      color: #00653C;
+      border: 2px solid #00653C;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: border-color 0.15s;
-      &:hover { border-color: #1A1A1A; }
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-secondary:hover {
+      background: #00653C;
+      color: #FFFFFF;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .footer {
+      background: #FFFFFF;
+      border-top: 1px solid #E0E0E0;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .footer span {
+      font-size: 0.72rem;
+      color: #555555;
+    }
+
+    .sep {
+      width: 1px;
+      height: 12px;
+      background: #E0E0E0 !important;
     }
   `]
 })
