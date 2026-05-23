@@ -9,7 +9,7 @@ public class SingPayCallback {
     private String reference;
     private String status;
     private String result;
-    private Integer amount;
+    private String amount;  // SingPay envoie le montant comme String dans le webhook
 
     @JsonProperty("airtel_money_id")
     private String airtelMoneyId;
@@ -23,8 +23,8 @@ public class SingPayCallback {
     public void setStatus(String s)         { this.status = s; }
     public String getResult()               { return result; }
     public void setResult(String r)         { this.result = r; }
-    public Integer getAmount()              { return amount; }
-    public void setAmount(Integer a)        { this.amount = a; }
+    public String getAmount()               { return amount; }
+    public void setAmount(String a)         { this.amount = a; }
     public String getAirtelMoneyId()        { return airtelMoneyId; }
     public void setAirtelMoneyId(String id) { this.airtelMoneyId = id; }
     public String getClientMsisdn()         { return clientMsisdn; }

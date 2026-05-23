@@ -35,11 +35,25 @@ public class WebhookController {
      */
     @PostMapping("/singpay")
     public ResponseEntity<Void> handleCallback(@RequestBody SingPayWebhookPayload payload) {
+
+        // BUG #2 — Guard null payload / transaction null
+        if (payload == null || payload.getTransaction() == null) {
+            log.warn("Webhook SingPay reçu avec payload null ou transaction null");
+            return ResponseEntity.ok().build();
+        }
+
         SingPayCallback callback = payload.getTransaction();
 
         String reference = callback.getReference();
-        String status    = callback.getStatus();
-        String result    = callback.getResult();
+
+        // BUG #3 — Guard reference null ou vide
+        if (reference == null || reference.isBlank()) {
+            log.warn("Webhook SingPay reçu sans référence de transaction");
+            return ResponseEntity.ok().build();
+        }
+
+        String status = callback.getStatus();
+        String result = callback.getResult();
 
         log.info("Callback SingPay reçu — ref: {}, status: {}, result: {}",
                  reference, status, result);
@@ -53,7 +67,7 @@ public class WebhookController {
         Optional<Order> opt = orderRepo.findByReference(reference);
         if (opt.isEmpty()) {
             log.warn("Callback SingPay pour une référence inconnue: {}", reference);
-            return ResponseEntity.ok().build(); // répondre 200 quand même
+            return ResponseEntity.ok().build();
         }
 
         Order order = opt.get();
@@ -65,14 +79,21 @@ public class WebhookController {
             return ResponseEntity.ok().build();
         }
 
-        // ── Vérification de sécurité : le montant correspond ─────────────────
+        // BUG #1 — Vérification montant : parseInt au lieu de String.equals(Integer)
         if (callback.getAmount() != null) {
-            if (!callback.getAmount().equals(order.getAmount())) {
-                log.error("ALERTE montant incohérent pour {} — attendu: {}, reçu: {}",
-                          reference, order.getAmount(), callback.getAmount());
-                order.setStatus("FRAUD_SUSPECTED");
-                order.setUpdatedAt(LocalDateTime.now());
-                orderRepo.save(order);
+            try {
+                int receivedAmount = Integer.parseInt(callback.getAmount());
+                if (receivedAmount != order.getAmount()) {
+                    log.error("ALERTE montant incohérent pour {} — attendu: {}, reçu: {}",
+                              reference, order.getAmount(), receivedAmount);
+                    order.setStatus("FRAUD_SUSPECTED");
+                    order.setUpdatedAt(LocalDateTime.now());
+                    orderRepo.save(order);
+                    return ResponseEntity.ok().build();
+                }
+            } catch (NumberFormatException e) {
+                log.error("Montant malformé dans le callback SingPay pour {}: {}",
+                          reference, callback.getAmount());
                 return ResponseEntity.ok().build();
             }
         }
@@ -83,12 +104,6 @@ public class WebhookController {
             order.setAirtelMoneyId(callback.getAirtelMoneyId());
             log.info("Commande {} payée avec succès (ID Airtel: {})",
                      reference, callback.getAirtelMoneyId());
-
-            // TODO: déclencher ici la logique métier post-paiement :
-            //   - envoyer un email de confirmation
-            //   - activer l'abonnement
-            //   - appeler un event bus / service métier
-
         } else {
             order.setStatus("FAILED_" + result);
             log.warn("Paiement échoué pour la commande {} — raison: {}", reference, result);

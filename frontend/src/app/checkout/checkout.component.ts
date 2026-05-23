@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { v4 as uuidv4 } from 'uuid';
+import { UssdCheckoutComponent } from '../ussd-checkout/ussd-checkout.component';
+import { OrderStatus } from '../services/payment.service';
 
 export interface CartItem {
   name: string;
@@ -27,16 +29,13 @@ export interface CreateLinkResponse {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UssdCheckoutComponent],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss']
 })
 export class CheckoutComponent implements OnInit {
 
-  // Données du panier (simulées ou passées via un service)
-  cart: CartItem[] = [
-    { name: 'Paiement test', price: 1000, qty: 1 },
-  ];
+  cart: CartItem[] = [];
 
   // Formulaire
   customerName  = '';
@@ -52,13 +51,29 @@ export class CheckoutComponent implements OnInit {
   // Référence unique pour cette commande
   reference = `CMD-${Date.now()}-${uuidv4().slice(0, 8).toUpperCase()}`;
 
+  // Mode de paiement : USSD Push ou lien externe SingPay
+  paymentMode: 'ussd' | 'ext' = 'ussd';
+
+  // Contrôle la recréation du composant USSD après annulation
+  ussdActive = true;
+
   constructor(
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const name   = params.get('product');
+      const amount = Number(params.get('amount'));
+      if (name && amount) {
+        this.cart = [{ name, price: amount, qty: 1 }];
+      } else {
+        this.cart = [{ name: 'Paiement test', price: 100, qty: 1 }];
+      }
+    });
+  }
 
   get total(): number {
     return this.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
@@ -79,7 +94,7 @@ export class CheckoutComponent implements OnInit {
    * puis redirige l'utilisateur vers la page de paiement hébergée.
    */
   pay(): void {
-    if (!this.isFormValid) return;
+    if (!this.isFormValid || this.loading) return;
 
     this.loading  = true;
     this.errorMsg = '';
@@ -103,5 +118,18 @@ export class CheckoutComponent implements OnInit {
             ?? 'Une erreur est survenue. Veuillez réessayer.';
         }
       });
+  }
+
+  onPaymentDone(order: OrderStatus): void {
+    this.router.navigate(['/paiement/succes'], {
+      queryParams: { reference: order.reference }
+    });
+  }
+
+  onPaymentCancelled(): void {
+    // Régénère la référence et recrée le composant USSD pour une nouvelle tentative
+    this.reference = `CMD-${Date.now()}-${uuidv4().slice(0, 8).toUpperCase()}`;
+    this.ussdActive = false;
+    setTimeout(() => { this.ussdActive = true; }, 0);
   }
 }

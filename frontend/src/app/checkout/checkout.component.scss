@@ -2,6 +2,7 @@ $primary:    #00653C;
 $primary-dk: #004d2d;
 $secondary:  #FFC900;
 $bg-alt:     #CEFFEB;
+$bg-page:    #FAFAFA;
 $white:      #FFFFFF;
 $text:       #1A1A1A;
 $muted:      #555555;
@@ -11,7 +12,7 @@ $shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
 
 .checkout-page {
   min-height: 100vh;
-  background: $white;
+  background: $bg-page;
   font-family: 'Inter', sans-serif;
   color: $text;
   display: flex;
@@ -86,7 +87,6 @@ $shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
 .order-summary {
   background: $white;
   border: 1px solid $border;
-  box-shadow: $shadow;
   padding: 1.75rem;
   position: sticky;
   top: calc(60px + 2rem);
@@ -201,7 +201,6 @@ $shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
 .payment-form {
   background: $white;
   border: 1px solid $border;
-  box-shadow: $shadow;
   padding: 2rem 2.25rem;
 
   @media (max-width: 740px) {
@@ -286,6 +285,41 @@ $shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: 0.78rem;
   color: $muted;
   letter-spacing: 0.04em;
+}
+
+// ── Mode toggle ──────────────────────────────────────────────────────────
+.mode-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 1px solid $border;
+
+  button {
+    flex: 1;
+    padding: 0.65rem 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: none;
+    background: $white;
+    color: $muted;
+    transition: background 0.15s, color 0.15s;
+
+    &:first-child { border-right: 1px solid $border; }
+
+    &:hover:not(.mode-active) {
+      background: #F5F5F5;
+      color: $text;
+    }
+
+    &.mode-active {
+      background: $primary;
+      color: $white;
+    }
+  }
 }
 
 // ── CTA Button ───────────────────────────────────────────────────────────

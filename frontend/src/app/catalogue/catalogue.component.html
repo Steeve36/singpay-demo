@@ -1,0 +1,116 @@
+<section class="catalogue-page">
+
+  <!-- Header -->
+  <header class="catalogue-header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">QTZ-App</span>
+    </div>
+    <div class="header-secure">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <rect x="3" y="11" width="18" height="11" rx="0"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Paiement sécurisé via SingPay
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="catalogue-hero">
+    <div class="hero-content">
+      <p class="hero-label">Nos offres</p>
+      <h1>Choisissez votre formule</h1>
+      <p class="hero-sub">Paiement simple et sécurisé via Mobile Money — Airtel, Moov ou Maviance.</p>
+    </div>
+  </div>
+
+  <!-- Forfaits -->
+  <div class="catalogue-section">
+    <div class="section-header">
+      <h2>Forfaits mensuels</h2>
+      <p>Résiliable à tout moment. Facturation le 1er de chaque mois.</p>
+    </div>
+    <div class="products-grid forfaits-grid">
+      <div
+        *ngFor="let p of forfaits"
+        class="product-card"
+        [class.product-card--highlight]="p.highlight">
+
+        <div class="card-badge" *ngIf="p.badge">{{ p.badge }}</div>
+
+        <div class="card-top">
+          <h3 class="card-name">{{ p.name }}</h3>
+          <p class="card-desc">{{ p.description }}</p>
+          <div class="card-price">
+            <span class="price-amount">{{ formatPrice(p.price) }}</span>
+            <span class="price-period" *ngIf="p.period">{{ p.period }}</span>
+          </div>
+        </div>
+
+        <ul class="card-features">
+          <li *ngFor="let f of p.features">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ f }}
+          </li>
+        </ul>
+
+        <button class="btn-choose" [class.btn-choose--primary]="p.highlight" (click)="choisir(p)">
+          Choisir ce forfait
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="catalogue-section catalogue-section--alt">
+    <div class="section-header">
+      <h2>Services ponctuels</h2>
+      <p>Paiement unique, sans engagement.</p>
+    </div>
+    <div class="products-grid services-grid">
+      <div *ngFor="let p of services" class="product-card">
+
+        <div class="card-badge" *ngIf="p.badge">{{ p.badge }}</div>
+
+        <div class="card-top">
+          <h3 class="card-name">{{ p.name }}</h3>
+          <p class="card-desc">{{ p.description }}</p>
+          <div class="card-price">
+            <span class="price-amount">{{ formatPrice(p.price) }}</span>
+            <span class="price-period">paiement unique</span>
+          </div>
+        </div>
+
+        <ul class="card-features">
+          <li *ngFor="let f of p.features">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ f }}
+          </li>
+        </ul>
+
+        <button class="btn-choose" (click)="choisir(p)">
+          Réserver
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="catalogue-footer">
+    <span>© 2025 QTZ-App</span>
+    <span class="footer-sep"></span>
+    <a href="#">Conditions d'utilisation</a>
+    <span class="footer-sep"></span>
+    <a href="#">Confidentialité</a>
+    <span class="footer-sep"></span>
+    <span>Paiement sécurisé par SingPay</span>
+  </footer>
+
+</section>

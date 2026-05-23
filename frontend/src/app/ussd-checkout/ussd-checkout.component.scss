@@ -1,0 +1,416 @@
+// ── Variables reprises du checkout existant ──────────────────────────────────
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$error:      #DC2626;
+$shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
+$green:      #00653C;
+
+.ussd-checkout {
+  font-family: 'Inter', sans-serif;
+  color: $text;
+}
+
+// ── Étapes ───────────────────────────────────────────────────────────────────
+.ussd-step {
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $border;
+    letter-spacing: -0.01em;
+  }
+}
+
+// ── Cards opérateurs ─────────────────────────────────────────────────────────
+.operator-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.operator-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border: 1px solid $border;
+  background: $white;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #F5F5F5;
+  }
+
+  &.selected {
+    border-left: 3px solid $primary;
+    padding-left: calc(1.25rem - 2px);
+    background: $bg-alt;
+  }
+}
+
+.op-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.op-logo {
+  width: 52px;
+  min-width: 52px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.op-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.op-radio {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  border: 2px solid $border;
+  position: relative;
+  transition: border-color 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $primary;
+    transition: transform 0.15s;
+  }
+
+  .operator-card.selected & {
+    border-color: $primary;
+
+    &::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
+
+// ── Champs formulaire (identiques au checkout) ────────────────────────────────
+.amount-display {
+  font-size: 0.88rem;
+  color: $muted;
+  margin-bottom: 1.25rem;
+
+  strong {
+    color: $primary;
+    font-weight: 700;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  input {
+    padding: 0.8rem 1rem;
+    border: 1px solid $border;
+    border-radius: 0;
+    font-size: 0.93rem;
+    font-family: 'Inter', sans-serif;
+    color: $text;
+    background: $white;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(0, 101, 60, 0.1);
+    }
+
+    &::placeholder { color: #C0C0C0; }
+  }
+}
+
+.field-error {
+  font-size: 0.72rem;
+  color: $error;
+  font-weight: 500;
+}
+
+// ── Récapitulatif ─────────────────────────────────────────────────────────────
+.recap {
+  text-align: left;
+  background: #F7FFF9;
+  border: 1px solid $border;
+  padding: 0 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.recap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid $border;
+  font-size: 0.83rem;
+  gap: 1rem;
+
+  &:last-child { border-bottom: none; }
+
+  span:first-child {
+    color: $muted;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+
+  strong {
+    font-weight: 500;
+    text-align: right;
+    word-break: break-all;
+    color: $text;
+  }
+}
+
+.recap-amount {
+  color: $primary !important;
+  font-weight: 700 !important;
+}
+
+.recap-ref {
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: $muted !important;
+}
+
+// ── Alertes ───────────────────────────────────────────────────────────────────
+%alert-base {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.83rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+
+  .alert-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+}
+
+.alert-error {
+  @extend %alert-base;
+  background: #FEF2F2;
+  border-left: 3px solid $error;
+  color: $error;
+
+  .alert-icon {
+    background: $error;
+    color: $white;
+  }
+}
+
+.alert-pending {
+  @extend %alert-base;
+  background: #FFF8E1;
+  border-left: 3px solid $secondary;
+  color: $text;
+
+  .alert-icon {
+    background: $secondary;
+    color: $text;
+  }
+}
+
+// ── Boutons (identiques checkout) ─────────────────────────────────────────────
+.btn-pay {
+  width: 100%;
+  padding: 1rem;
+  background: $primary;
+  color: $white;
+  border: none;
+  border-radius: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) { background: $primary-dk; }
+
+  &:disabled {
+    background: #8aad9f;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  color: $primary;
+  border: 2px solid $primary;
+  border-radius: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: $primary;
+    color: $white;
+  }
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+
+  .btn-secondary,
+  .btn-pay {
+    flex: 1;
+  }
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Écran d'attente ───────────────────────────────────────────────────────────
+.ussd-waiting {
+  text-align: center;
+
+  h3 { border: none; margin-bottom: 0.75rem; }
+}
+
+.pulse-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: $bg-alt;
+  margin: 0 auto 1.5rem;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.95); }
+}
+
+.waiting-msg {
+  font-size: 0.88rem;
+  color: $muted;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.phone-reminder {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.countdown {
+  font-size: 0.8rem;
+  color: $muted;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+// ── Écrans de résultat ────────────────────────────────────────────────────────
+.ussd-result {
+  text-align: center;
+
+  h3 {
+    border: none;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+.result-badge {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.success-badge {
+  background: $bg-alt;
+  color: $primary;
+}
+
+.error-badge {
+  background: #FEF2F2;
+  color: $error;
+}
+
+.pending-badge {
+  background: #FFF8E1;
+  color: $secondary;
+}
+
+.result-msg {
+  font-size: 0.88rem;
+  color: $muted;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -77,16 +79,84 @@ public class PaymentController {
     }
 
     /**
+     * POST /api/payment/ussd
+     * Initie un paiement USSD Push. Angular poll ensuite GET /api/payment/order/{ref}
+     * toutes les 5s pour savoir quand la transaction est terminée.
+     */
+    @PostMapping("/ussd")
+    public ResponseEntity<?> initierUssd(@Valid @RequestBody UssdPaymentRequest req) {
+
+        // Idempotence — refuser une référence déjà connue
+        if (orderRepo.existsByReference(req.getReference())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", "Référence déjà utilisée: " + req.getReference()));
+        }
+
+        // Validation MSISDN selon les préfixes opérateurs au Gabon
+        if (!isValidMsisdn(req.getPhone(), req.getOperateur())) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("message",
+                    "Numéro de téléphone invalide pour l'opérateur " + req.getOperateur()));
+        }
+
+        // Appel SingPay
+        String singpayTxnId;
+        try {
+            singpayTxnId = singPay.initierPaiementUssd(
+                req.getOperateur(), req.getPhone(), req.getAmount(), req.getReference());
+        } catch (RuntimeException e) {
+            log.error("Échec initiation USSD pour {}: {}", req.getReference(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(Map.of("message", e.getMessage()));
+        }
+
+        // Persister la commande en PENDING
+        Order order = new Order();
+        order.setReference(req.getReference());
+        order.setAmount(req.getAmount());
+        order.setOperateur(req.getOperateur().toUpperCase());
+        order.setClientMsisdn(req.getPhone());
+        order.setCustomerName(req.getCustomerName());
+        order.setCustomerEmail(req.getCustomerEmail());
+        order.setSingpayTransactionId(singpayTxnId != null ? singpayTxnId : "");
+        order.setStatus("PENDING");
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepo.save(order);
+
+        log.info("USSD Push initié — ref: {}, opérateur: {}, singpayTxnId: {}",
+                 req.getReference(), req.getOperateur(), singpayTxnId);
+
+        return ResponseEntity.ok(Map.of(
+            "reference",     req.getReference(),
+            "transactionId", singpayTxnId != null ? singpayTxnId : ""
+        ));
+    }
+
+    /**
      * GET /api/payment/order/{reference}
      * Retourne les détails d'une commande depuis la base de données locale.
-     * Utilisé par les pages de résultat pour afficher le récapitulatif.
+     * Le MSISDN est masqué avant tout retour vers Angular.
      */
     @GetMapping("/order/{reference}")
-    public ResponseEntity<Order> getOrder(@PathVariable String reference) {
-        return orderRepo.findByReference(reference)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Commande introuvable : " + reference));
+    public ResponseEntity<?> getOrder(@PathVariable String reference) {
+        Optional<Order> opt = orderRepo.findByReference(reference);
+        if (opt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Order order = opt.get();
+        return ResponseEntity.ok(Map.of(
+            "reference",    order.getReference(),
+            "status",       order.getStatus(),
+            "amount",       order.getAmount(),
+            "operateur",    order.getOperateur()      != null ? order.getOperateur()      : "",
+            "clientMsisdn", maskMsisdn(order.getClientMsisdn()),
+            "airtelMoneyId", order.getAirtelMoneyId() != null ? order.getAirtelMoneyId() : "",
+            "customerName",  order.getCustomerName()  != null ? order.getCustomerName()  : "",
+            "customerEmail", order.getCustomerEmail() != null ? order.getCustomerEmail() : "",
+            "createdAt",    order.getCreatedAt().toString(),
+            "updatedAt",    order.getUpdatedAt().toString()
+        ));
     }
 
     /**
@@ -107,5 +177,31 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok(status);
+    }
+
+    /**
+     * Validation des numéros de téléphone selon les préfixes opérateurs au Gabon.
+     * Airtel : 074, 076, 077 + 6 chiffres
+     * Moov   : 062, 065, 066 + 6 chiffres
+     * Maviance : accepte les deux opérateurs (format générique)
+     */
+    private boolean isValidMsisdn(String phone, String operateur) {
+        if (phone == null || phone.isBlank()) return false;
+        String p = phone.replaceAll("[^0-9]", "");
+        return switch (operateur.toUpperCase()) {
+            case "AIRTEL"   -> p.matches("^(074|076|077)\\d{6}$");
+            case "MOOV"     -> p.matches("^(062|065|066)\\d{6}$");
+            case "MAVIANCE" -> p.matches("^0[67]\\d{7}$");
+            default         -> false;
+        };
+    }
+
+    /**
+     * Masque le numéro mobile : "074001234" → "074****34"
+     * Ne jamais retourner le numéro complet à Angular.
+     */
+    private String maskMsisdn(String msisdn) {
+        if (msisdn == null || msisdn.length() < 6) return "***";
+        return msisdn.substring(0, 3) + "****" + msisdn.substring(msisdn.length() - 2);
     }
 }

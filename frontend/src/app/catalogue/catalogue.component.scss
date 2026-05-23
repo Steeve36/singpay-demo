@@ -1,0 +1,341 @@
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$bg-page:    #FAFAFA;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$error:      #DC2626;
+
+.catalogue-page {
+  min-height: 100vh;
+  background: $bg-page;
+  font-family: 'Inter', sans-serif;
+  color: $text;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.catalogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: $white;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+
+  &-mark {
+    width: 24px;
+    height: 24px;
+    background: $primary;
+    flex-shrink: 0;
+  }
+
+  &-name {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    color: $text;
+  }
+}
+
+.header-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 0.03em;
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────────
+.catalogue-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid $border;
+  background: $white;
+
+  // Hachures diagonales — couvrent tout le hero
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.13) 0px,
+      rgba(0, 0, 0, 0.13) 1.5px,
+      transparent          1.5px,
+      transparent          8px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Fondu radial blanc — efface les hachures au centre pour garder le texte lisible
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 75% 110% at 50% 30%,
+      rgba(255, 255, 255, 1)   15%,
+      rgba(255, 255, 255, 0.88) 45%,
+      rgba(255, 255, 255, 0.45) 70%,
+      rgba(255, 255, 255, 0)   100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 4.5rem 2rem 3rem;
+}
+
+.hero-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: $primary;
+  margin-bottom: 0.75rem;
+}
+
+.catalogue-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+
+  @media (max-width: 600px) { font-size: 1.5rem; }
+}
+
+.hero-sub {
+  font-size: 0.93rem;
+  color: $muted;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+// ── Section ───────────────────────────────────────────────────────────────────
+.catalogue-section {
+  padding: 3rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+
+  &--alt {
+    background: $white;
+    max-width: 100%;
+    border-top: 1px solid $border;
+    border-bottom: 1px solid $border;
+
+    .products-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+  }
+}
+
+.section-header {
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  p {
+    font-size: 0.83rem;
+    color: $muted;
+  }
+}
+
+// ── Grilles ───────────────────────────────────────────────────────────────────
+.products-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.forfaits-grid {
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 860px) { grid-template-columns: 1fr; }
+}
+
+.services-grid {
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 860px) { grid-template-columns: 1fr; }
+  @media (max-width: 580px) { grid-template-columns: 1fr; }
+}
+
+// ── Card produit ──────────────────────────────────────────────────────────────
+.product-card {
+  background: $white;
+  border: 1px solid $border;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+
+  &--highlight {
+    border: 2px solid $primary;
+    background: #F7FFF9;
+  }
+}
+
+.card-badge {
+  position: absolute;
+  top: -1px;
+  right: 1.25rem;
+  background: $secondary;
+  color: $text;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+}
+
+.card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.01em;
+}
+
+.card-desc {
+  font-size: 0.82rem;
+  color: $muted;
+  line-height: 1.5;
+}
+
+.card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 0.5rem;
+}
+
+.price-amount {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: $primary;
+  letter-spacing: -0.02em;
+}
+
+.price-period {
+  font-size: 0.78rem;
+  color: $muted;
+  font-weight: 400;
+}
+
+// ── Features ──────────────────────────────────────────────────────────────────
+.card-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.83rem;
+    color: $text;
+
+    svg {
+      flex-shrink: 0;
+      color: $primary;
+    }
+  }
+}
+
+// ── Boutons ───────────────────────────────────────────────────────────────────
+.btn-choose {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  color: $primary;
+  border: 2px solid $primary;
+  border-radius: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-top: auto;
+
+  &:hover {
+    background: $primary;
+    color: $white;
+  }
+
+  &--primary {
+    background: $primary;
+    color: $white;
+
+    &:hover { background: $primary-dk; }
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.catalogue-footer {
+  background: $white;
+  border-top: 1px solid $border;
+  padding: 1.25rem 2rem;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+
+  span, a {
+    font-size: 0.72rem;
+    color: $muted;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+
+    &:hover { color: $text; }
+  }
+
+  .footer-sep {
+    width: 1px;
+    height: 12px;
+    background: $border;
+  }
+}

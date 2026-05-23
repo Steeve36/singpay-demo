@@ -1,0 +1,244 @@
+<div class="ussd-checkout">
+
+  <!-- ÉTAPE 1 — Sélection opérateur -->
+  <div *ngIf="step === 'operator'" class="ussd-step">
+    <h3>Sélectionnez votre opérateur</h3>
+    <div class="operator-cards">
+      <div class="operator-card"
+           [class.selected]="operateur === 'AIRTEL'"
+           (click)="operateur = 'AIRTEL'">
+        <div class="op-left">
+          <img src="assets/logos/logo-airtel_money.png" alt="Airtel Money" class="op-logo">
+          <span class="op-name airtel">Airtel Money</span>
+        </div>
+        <div class="op-radio"></div>
+      </div>
+      <div class="operator-card"
+           [class.selected]="operateur === 'MOOV'"
+           (click)="operateur = 'MOOV'">
+        <div class="op-left">
+          <img src="assets/logos/logo-moov_money.png" alt="Moov Money" class="op-logo">
+          <span class="op-name moov">Moov Money</span>
+        </div>
+        <div class="op-radio"></div>
+      </div>
+      <div class="operator-card"
+           [class.selected]="operateur === 'MAVIANCE'"
+           (click)="operateur = 'MAVIANCE'">
+        <div class="op-left">
+          <img src="assets/logos/logo-maviance.jpg" alt="Maviance" class="op-logo">
+          <span class="op-name maviance">Maviance</span>
+        </div>
+        <div class="op-radio"></div>
+      </div>
+    </div>
+    <button class="btn-pay" [disabled]="!operateur" (click)="goToPhone()">
+      Continuer
+    </button>
+  </div>
+
+  <!-- ÉTAPE 2 — Informations du client + numéro -->
+  <div *ngIf="step === 'phone'" class="ussd-step">
+    <h3>Vos informations</h3>
+    <p class="amount-display">Montant à payer : <strong>{{ amountFormatted }}</strong></p>
+
+    <div class="field">
+      <label>Nom complet</label>
+      <input
+        type="text"
+        [(ngModel)]="customerName"
+        placeholder="Jean Dupont"
+        autocomplete="name"
+      />
+    </div>
+
+    <div class="field">
+      <label>Adresse e-mail</label>
+      <input
+        type="email"
+        [(ngModel)]="customerEmail"
+        placeholder="jean@exemple.com"
+        autocomplete="email"
+      />
+    </div>
+
+    <div class="field">
+      <label>Numéro {{ operateurLabel }}</label>
+      <input
+        type="tel"
+        [(ngModel)]="phone"
+        [placeholder]="phonePlaceholder"
+        (input)="onPhoneInput()"
+        maxlength="9"
+      />
+      <span *ngIf="phone && !isPhoneValid" class="field-error">
+        Numéro invalide pour {{ operateurLabel }}
+      </span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-secondary" type="button" (click)="step = 'operator'">Retour</button>
+      <button class="btn-pay" [disabled]="!isStep2Valid" (click)="goToConfirm()">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 3 — Récapitulatif + confirmation -->
+  <div *ngIf="step === 'confirm'" class="ussd-step">
+    <h3>Récapitulatif</h3>
+
+    <div *ngIf="errorMsg" class="alert-error">
+      <span class="alert-icon">!</span>
+      {{ errorMsg }}
+    </div>
+
+    <div class="recap">
+      <div class="recap-row">
+        <span>Nom</span>
+        <strong>{{ customerName }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Email</span>
+        <strong>{{ customerEmail }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Opérateur</span>
+        <strong [style.color]="operateurColor">{{ operateurLabel }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Numéro</span>
+        <strong>{{ maskedPhone }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Montant</span>
+        <strong class="recap-amount">{{ amountFormatted }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Référence</span>
+        <strong class="recap-ref">{{ reference }}</strong>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn-secondary" type="button" (click)="step = 'phone'">Retour</button>
+      <button class="btn-pay" [disabled]="loading" (click)="confirmer()">
+        <span *ngIf="!loading">Confirmer et payer</span>
+        <span *ngIf="loading" class="spinner-row">
+          <span class="spinner"></span>Traitement…
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN D'ATTENTE -->
+  <div *ngIf="step === 'waiting'" class="ussd-step ussd-waiting">
+    <div class="pulse-circle"></div>
+    <h3>En attente de votre confirmation</h3>
+    <p class="waiting-msg">
+      Composez votre PIN <strong>{{ operateurLabel }}</strong> pour confirmer le paiement
+    </p>
+    <p class="phone-reminder">{{ maskedPhone }}</p>
+    <p class="countdown">Expiration dans {{ countdown }}s…</p>
+    <button class="btn-secondary" type="button" (click)="annuler()">Annuler</button>
+  </div>
+
+  <!-- SUCCÈS -->
+  <div *ngIf="step === 'success'" class="ussd-step ussd-result">
+    <div class="result-badge success-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h3>Paiement confirmé</h3>
+    <div class="recap" *ngIf="completedOrder">
+      <div class="recap-row">
+        <span>Référence</span>
+        <strong>{{ completedOrder.reference }}</strong>
+      </div>
+      <div class="recap-row">
+        <span>Montant</span>
+        <strong class="recap-amount">{{ completedOrder.amount | number:'1.0-0' }} FCFA</strong>
+      </div>
+      <div class="recap-row" *ngIf="completedOrder.airtelMoneyId">
+        <span>ID transaction</span>
+        <strong>{{ completedOrder.airtelMoneyId }}</strong>
+      </div>
+    </div>
+    <button class="btn-pay" (click)="done.emit(completedOrder!)">Retour à l'accueil</button>
+  </div>
+
+  <!-- ÉCHEC : solde insuffisant -->
+  <div *ngIf="step === 'failed_balance'" class="ussd-step ussd-result">
+    <div class="result-badge error-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <h3>Solde insuffisant</h3>
+    <p class="result-msg">Rechargez votre compte {{ operateurLabel }} puis réessayez.</p>
+    <button class="btn-pay" (click)="recommencer()">Réessayer</button>
+  </div>
+
+  <!-- ÉCHEC : PIN incorrect -->
+  <div *ngIf="step === 'failed_pin'" class="ussd-step ussd-result">
+    <div class="result-badge error-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <h3>PIN incorrect</h3>
+    <p class="result-msg">Vérifiez votre code secret Mobile Money.</p>
+    <button class="btn-pay" (click)="recommencer()">Réessayer</button>
+  </div>
+
+  <!-- ÉCHEC : timeout SingPay -->
+  <div *ngIf="step === 'failed_timeout_singpay'" class="ussd-step ussd-result">
+    <div class="result-badge error-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <h3>Délai dépassé</h3>
+    <p class="result-msg">Vous n'avez pas confirmé à temps.</p>
+    <button class="btn-pay" (click)="recommencer()">Réessayer</button>
+  </div>
+
+  <!-- TIMEOUT Angular -->
+  <div *ngIf="step === 'timeout_angular'" class="ussd-step ussd-result">
+    <div class="result-badge pending-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square">
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <rect x="2" y="2" width="20" height="20" rx="0"/>
+      </svg>
+    </div>
+    <h3>Pas de réponse reçue</h3>
+    <p class="result-msg">
+      Si vous avez confirmé sur votre téléphone, réessayez dans quelques instants.
+    </p>
+
+    <div *ngIf="statusCheckResult === 'pending'" class="alert-pending">
+      <span class="alert-icon">…</span>
+      <span>Paiement toujours en attente — votre confirmation n'a pas encore été reçue. Patientez puis réessayez.</span>
+    </div>
+
+    <div *ngIf="statusCheckResult === 'error'" class="alert-error">
+      <span class="alert-icon">!</span>
+      <span>Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.</span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-pay" [disabled]="checkingStatus" (click)="verifierStatut()">
+        <span *ngIf="!checkingStatus">J'ai confirmé sur mon téléphone</span>
+        <span *ngIf="checkingStatus" class="spinner-row">
+          <span class="spinner"></span>Vérification…
+        </span>
+      </button>
+      <button class="btn-secondary" [disabled]="checkingStatus" (click)="annuler()">Annuler</button>
+    </div>
+  </div>
+
+</div>
