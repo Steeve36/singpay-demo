@@ -1,6 +1,6 @@
 # SingPay Demo — Angular + Spring Boot + MySQL
 
-Intégration complète de SingPay Mobile Money (approche `/ext`) avec un frontend Angular et un backend Spring Boot. Permet de générer un lien de paiement hébergé par SingPay, rediriger l'utilisateur, et recevoir la confirmation via webhook.
+Intégration complète de SingPay Mobile Money avec un frontend Angular et un backend Spring Boot. Supporte deux modes de paiement : **USSD Push** (débit direct sur le téléphone du client) et **lien externe SingPay** (redirection vers la page de paiement hébergée). La confirmation est reçue dans les deux cas via webhook.
 
 ---
 
@@ -8,15 +8,16 @@ Intégration complète de SingPay Mobile Money (approche `/ext`) avec un fronten
 
 1. [Stack technique](#stack-technique)
 2. [Architecture](#architecture)
-3. [Comprendre les deux URLs à configurer](#comprendre-les-deux-urls-à-configurer)
-4. [Prérequis](#prérequis)
-5. [Installation et démarrage local](#installation-et-démarrage-local)
-6. [Webhook SingPay — fonctionnement détaillé](#webhook-singpay--fonctionnement-détaillé)
-7. [API endpoints](#api-endpoints)
-8. [Statuts de transaction](#statuts-de-transaction)
-9. [Déploiement en production](#déploiement-en-production)
-10. [Structure du projet](#structure-du-projet)
-11. [Sécurité](#sécurité)
+3. [Modes de paiement](#modes-de-paiement)
+4. [Comprendre les deux URLs à configurer](#comprendre-les-deux-urls-à-configurer)
+5. [Prérequis](#prérequis)
+6. [Installation et démarrage local](#installation-et-démarrage-local)
+7. [Webhook SingPay — fonctionnement détaillé](#webhook-singpay--fonctionnement-détaillé)
+8. [API endpoints](#api-endpoints)
+9. [Statuts de transaction](#statuts-de-transaction)
+10. [Déploiement en production](#déploiement-en-production)
+11. [Structure du projet](#structure-du-projet)
+12. [Sécurité](#sécurité)
 
 ---
 
@@ -56,12 +57,29 @@ Intégration complète de SingPay Mobile Money (approche `/ext`) avec un fronten
 
 ## Architecture
 
+### Mode USSD Push
+
+```
+Angular (port 4200)
+  └── POST /api/payment/ussd  ──►  Spring Boot (port 8080)
+                                       └── POST /ussd  ──►  SingPay Gateway
+                                                                └── Prompt USSD → téléphone client
+
+Polling toutes les 5s (max 60s) :
+  Angular  ──►  GET /api/payment/order/{ref}  ──►  Spring Boot  ──►  MySQL
+
+Après confirmation PIN par le client :
+  SingPay  ──►  POST /webhook/singpay  ──►  Spring Boot  ──►  MySQL (maj statut → PAID / FAILED_*)
+  Angular  détecte le changement de statut via polling  ──►  affiche l'écran de résultat
+```
+
+### Mode lien externe SingPay (/ext)
+
 ```
 Angular (port 4200)
   └── POST /api/payment/create-link  ──►  Spring Boot (port 8080)
                                               └── POST /ext  ──►  SingPay Gateway
-                                                                      └── USSD Push client
-  ◄── redirect vers link SingPay  ─────────────────────────────────────────────┘
+  ◄── redirect navigateur vers page SingPay ───────────────────────────────────┘
 
 Après confirmation PIN par le client :
   SingPay  ──►  POST /webhook/singpay  ──►  Spring Boot  ──►  MySQL (maj statut)
@@ -69,6 +87,33 @@ Après confirmation PIN par le client :
 
 Angular (page résultat)  ──►  GET /api/payment/order/{ref}  ──►  Spring Boot  ──►  MySQL
 ```
+
+---
+
+## Modes de paiement
+
+L'application propose deux modes accessibles depuis la même page de catalogue via un toggle.
+
+### USSD Push (mode par défaut)
+
+Le client entre son numéro de téléphone. Le backend déclenche directement un prompt USSD sur son téléphone — il n'est pas redirigé vers une autre page. Il confirme le paiement en saisissant son PIN Mobile Money sur son téléphone.
+
+**Flux :**
+1. Le client sélectionne son opérateur (Airtel Money, Moov Money, Maviance)
+2. Il saisit son nom, email et numéro de téléphone
+3. Le backend appelle `POST /ussd` chez SingPay — un code USSD est envoyé sur le téléphone
+4. Angular interroge `GET /api/payment/order/{ref}` toutes les 5 secondes pendant 60s
+5. Le client compose son PIN sur son téléphone
+6. SingPay notifie le backend via webhook — le statut passe de `PENDING` à `PAID` ou `FAILED_*`
+7. Le polling Angular détecte le changement et affiche le résultat
+
+**Avantage :** expérience fluide sans quitter l'application.
+
+### Lien externe SingPay
+
+Le client est redirigé vers la page de paiement hébergée par SingPay. Après confirmation, SingPay le redirige vers `/paiement/succes` ou `/paiement/echec`.
+
+**Avantage :** zéro logique de paiement côté frontend, idéal pour une intégration rapide.
 
 ---
 
@@ -362,9 +407,10 @@ curl -X POST http://localhost:8080/webhook/singpay \
 
 | Méthode | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/payment/create-link` | Génère un lien de paiement SingPay |
+| `POST` | `/api/payment/ussd` | Initie un paiement USSD Push (mode direct) |
+| `POST` | `/api/payment/create-link` | Génère un lien de paiement SingPay (mode /ext) |
+| `GET` | `/api/payment/order/{reference}` | Récupère la commande depuis la base locale (polling) |
 | `GET` | `/api/payment/status/{reference}` | Vérifie le statut via l'API SingPay |
-| `GET` | `/api/payment/order/{reference}` | Récupère la commande depuis la base locale |
 | `POST` | `/webhook/singpay` | Reçoit les notifications SingPay (usage interne) |
 
 ---
@@ -606,11 +652,12 @@ singpay-demo/
 ├── backend/
 │   ├── src/main/java/com/demo/singpay/
 │   │   ├── controller/
-│   │   │   ├── PaymentController.java      # POST create-link, GET status, GET order
+│   │   │   ├── PaymentController.java      # POST ussd, POST create-link, GET order, GET status
 │   │   │   └── WebhookController.java      # POST /webhook/singpay ← logique principale
 │   │   ├── model/
 │   │   │   ├── Order.java                  # Entité JPA (table orders)
-│   │   │   ├── CreatePaymentRequest.java   # DTO requête Angular → backend
+│   │   │   ├── UssdPaymentRequest.java     # DTO requête USSD Push (opérateur, téléphone…)
+│   │   │   ├── CreatePaymentRequest.java   # DTO requête lien externe /ext
 │   │   │   ├── ExtLinkResponse.java        # DTO réponse SingPay /ext
 │   │   │   ├── SingPayWebhookPayload.java  # DTO webhook (enveloppe)
 │   │   │   ├── SingPayCallback.java        # DTO webhook (contenu transaction)
@@ -626,9 +673,14 @@ singpay-demo/
 │
 ├── frontend/
 │   ├── src/app/
-│   │   ├── checkout/                       # Page formulaire de paiement
-│   │   ├── payment-success/                # Page de succès post-redirection
-│   │   └── payment-error/                  # Page d'erreur post-redirection
+│   │   ├── catalogue/                      # Page de sélection de produits (route /)
+│   │   ├── checkout/                       # Page de paiement (route /checkout?product=…&amount=…)
+│   │   ├── ussd-checkout/                  # Composant USSD Push embarqué dans checkout
+│   │   ├── services/
+│   │   │   └── payment.service.ts          # Service Angular centralisé (initierUssd, getOrderStatus, createPaymentLink)
+│   │   ├── payment-success/                # Page de succès post-redirection /ext
+│   │   └── payment-error/                  # Page d'erreur post-redirection /ext
+│   ├── src/assets/logos/                   # Logos opérateurs (Airtel Money, Moov Money, Maviance)
 │   ├── proxy.conf.json                     # Proxy dev : /api et /webhook → :8080
 │   └── package.json
 │
