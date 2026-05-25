@@ -1,0 +1,123 @@
+<section class="method-landing">
+
+  <!-- Header -->
+  <header class="landing-header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">QTZ-App</span>
+    </div>
+    <div class="header-secure">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square">
+        <rect x="3" y="11" width="18" height="11" rx="0"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Paiement sécurisé
+    </div>
+  </header>
+
+  <!-- Body -->
+  <div class="landing-body">
+
+    <button type="button" class="back-link" (click)="retour()">← Retour</button>
+
+    <!-- Récapitulatif produit -->
+    <div class="product-recap" *ngIf="amount > 0">
+      <span class="recap-label">Vous payez pour</span>
+      <span class="recap-name">{{ productName || 'Commande' }}</span>
+      <span class="recap-amount">{{ amountFormatted }}</span>
+    </div>
+
+    <h1 class="section-title">Comment souhaitez-vous payer ?</h1>
+    <p class="section-sub">Choisissez votre mode de paiement préféré.</p>
+
+    <!-- Cartes de méthode -->
+    <div class="methods-list" role="radiogroup" aria-label="Mode de paiement">
+
+      <button
+        *ngFor="let m of methods"
+        type="button"
+        class="method-card"
+        [class.method-card--available]="m.available"
+        [class.method-card--disabled]="!m.available"
+        [disabled]="!m.available"
+        [attr.aria-label]="m.label + (m.available ? '' : ' — bientôt disponible')"
+        (click)="select(m)"
+      >
+        <!-- Icône -->
+        <span class="method-icon" aria-hidden="true">
+
+          <!-- Carte de Débit -->
+          <svg *ngIf="m.id === 'cd'" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="square">
+            <rect x="2" y="5" width="20" height="14" rx="0"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+            <rect x="5" y="14" width="4" height="2"/>
+          </svg>
+
+          <!-- Mobile Money -->
+          <svg *ngIf="m.id === 'mobile-money'" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="square">
+            <rect x="5" y="2" width="14" height="20" rx="0"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+
+          <!-- Virement -->
+          <svg *ngIf="m.id === 'virement'" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="square">
+            <line x1="3" y1="22" x2="21" y2="22"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <polyline points="12 2 3 7 21 7"/>
+            <line x1="6" y1="12" x2="6" y2="22"/>
+            <line x1="12" y1="12" x2="12" y2="22"/>
+            <line x1="18" y1="12" x2="18" y2="22"/>
+          </svg>
+
+          <!-- PayPal -->
+          <svg *ngIf="m.id === 'paypal'" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="square">
+            <path d="M7 20l2-16h5.5a4 4 0 0 1 4 4c0 3-2 5-5 5H9"/>
+            <path d="M5 20l1-8h4.5a3 3 0 0 1 3 3c0 2-1.5 3.5-4 3.5H7"/>
+          </svg>
+
+          <!-- Autre(s) -->
+          <svg *ngIf="m.id === 'autre'" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+            <circle cx="19" cy="12" r="1" fill="currentColor"/>
+            <circle cx="5" cy="12" r="1" fill="currentColor"/>
+          </svg>
+
+        </span>
+
+        <!-- Texte -->
+        <span class="method-info">
+          <span class="method-label">{{ m.label }}</span>
+          <span class="method-sublabel">{{ m.sublabel }}</span>
+        </span>
+
+        <!-- Statut -->
+        <span class="method-action" aria-hidden="true">
+          <span *ngIf="m.available" class="action-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="square">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </span>
+          <span *ngIf="!m.available" class="action-soon">Bientôt</span>
+        </span>
+
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <span>© 2025 QTZ-App</span>
+    <span class="footer-sep"></span>
+    <span>Paiement sécurisé par SingPay</span>
+  </footer>
+
+</section>

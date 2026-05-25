@@ -1,0 +1,347 @@
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$bg-page:    #FAFAFA;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$error:      #DC2626;
+
+.pay-page {
+  min-height: 100vh;
+  background: $bg-page;
+  font-family: 'Inter', sans-serif;
+  color: $text;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.pay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: $white;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &-mark { width: 24px; height: 24px; background: $primary; flex-shrink: 0; }
+  &-name { font-weight: 700; font-size: 1rem; color: $text; }
+}
+
+.header-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 0.03em;
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+.pay-body {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 3rem auto;
+  width: 100%;
+  padding: 0 2rem;
+  flex: 1;
+
+  @media (max-width: 740px) {
+    grid-template-columns: 1fr;
+    margin: 1.5rem auto;
+    gap: 1rem;
+  }
+}
+
+// ── Récap commande (colonne gauche) ───────────────────────────────────────────
+.order-summary {
+  background: $white;
+  border: 1px solid $border;
+  padding: 1.75rem;
+  align-self: start;
+  position: sticky;
+  top: calc(60px + 2rem);
+
+  h2 {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $muted;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 2px solid $text;
+  margin-bottom: 0.5rem;
+  font-size: 0.88rem;
+
+  strong { font-size: 1.2rem; font-weight: 700; color: $primary; }
+}
+
+.summary-ref {
+  font-size: 0.65rem;
+  color: $muted;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 1.25rem;
+}
+
+.customer-info {
+  padding-top: 1rem;
+  border-top: 1px solid $border;
+  margin-bottom: 1.25rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+}
+
+.info-label {
+  color: $muted;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.info-value {
+  color: $text;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+.operators-logos { padding-top: 1.25rem; border-top: 1px solid $border; }
+
+.accepted-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  margin-bottom: 0.75rem;
+}
+
+.logos-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.op-badge {
+  padding: 5px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: $secondary;
+  color: $text;
+}
+
+// ── Formulaire carte (colonne droite) ─────────────────────────────────────────
+.pay-form {
+  background: $white;
+  border: 1px solid $border;
+  padding: 2rem 2.25rem;
+}
+
+.pay-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $border;
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text;
+    margin: 0;
+  }
+}
+
+.stripe-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $muted;
+  background: #F0F0F0;
+  padding: 4px 10px;
+}
+
+// ── Icône carte ───────────────────────────────────────────────────────────────
+.card-icon-block {
+  width: 72px;
+  height: 72px;
+  background: $bg-alt;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: $primary;
+}
+
+.stripe-info-text {
+  font-size: 0.85rem;
+  color: $muted;
+  line-height: 1.7;
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+// ── Recap ordre ───────────────────────────────────────────────────────────────
+.order-recap {
+  background: #F7FFF9;
+  border: 1px solid $border;
+  padding: 0 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.recap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid $border;
+  font-size: 0.83rem;
+  gap: 1rem;
+
+  &:last-child { border-bottom: none; }
+
+  span:first-child { color: $muted; font-weight: 400; white-space: nowrap; }
+  strong { font-weight: 500; text-align: right; word-break: break-all; }
+}
+
+.recap-amount { color: $primary !important; font-weight: 700 !important; font-size: 1rem !important; }
+.recap-ref    { font-family: 'Courier New', monospace; font-size: 0.72rem; color: $muted !important; }
+
+// ── Alerte erreur ─────────────────────────────────────────────────────────────
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FEF2F2;
+  border-left: 3px solid $error;
+  padding: 0.75rem 1rem;
+  color: $error;
+  font-size: 0.83rem;
+  margin-bottom: 1.25rem;
+
+  .alert-icon {
+    width: 18px;
+    height: 18px;
+    background: $error;
+    color: $white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+}
+
+// ── Bouton payer ──────────────────────────────────────────────────────────────
+.btn-pay {
+  width: 100%;
+  padding: 1rem;
+  background: $primary;
+  color: $white;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) { background: $primary-dk; }
+
+  &:disabled { background: #8aad9f; cursor: not-allowed; }
+}
+
+.btn-pay-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.stripe-disclaimer {
+  font-size: 0.72rem;
+  color: $muted;
+  text-align: center;
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.pay-footer {
+  background: $white;
+  border-top: 1px solid $border;
+  padding: 1.25rem 2rem;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+
+  &:hover { text-decoration: underline; }
+}
+
+.footer-sep { width: 1px; height: 12px; background: $border; }

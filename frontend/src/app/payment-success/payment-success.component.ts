@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, interval } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
+import { PaymentService } from '../services/payment.service';
 
 interface Order {
   reference: string;
@@ -68,11 +69,11 @@ interface Order {
               <span>Référence</span>
               <strong>{{ order.reference }}</strong>
             </div>
-            <div class="receipt-row">
+            <div class="receipt-row" *ngIf="order.customerName">
               <span>Client</span>
               <strong>{{ order.customerName }}</strong>
             </div>
-            <div class="receipt-row">
+            <div class="receipt-row" *ngIf="order.customerEmail">
               <span>Email</span>
               <strong>{{ order.customerEmail }}</strong>
             </div>
@@ -84,16 +85,16 @@ interface Order {
               <span>ID transaction</span>
               <strong>{{ order.airtelMoneyId }}</strong>
             </div>
-            <div class="receipt-row">
+            <div class="receipt-row" *ngIf="order.updatedAt">
               <span>Date</span>
               <strong>{{ order.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</strong>
             </div>
           </div>
 
-          <a routerLink="/checkout" class="btn-primary">Nouveau paiement</a>
+          <a routerLink="/" class="btn-primary">Retour à l'accueil</a>
         </div>
 
-        <!-- Timeout -->
+        <!-- Timeout / En attente -->
         <div class="card" *ngIf="state === 'timeout'">
           <div class="status-badge pending-badge">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -121,7 +122,7 @@ interface Order {
             </div>
           </div>
 
-          <a routerLink="/checkout" class="btn-secondary">Retour à l'accueil</a>
+          <a routerLink="/" class="btn-secondary">Retour à l'accueil</a>
         </div>
 
       </main>
@@ -238,15 +239,8 @@ interface Order {
       margin: 0 auto 1.5rem;
     }
 
-    .success-badge {
-      background: #CEFFEB;
-      color: #00653C;
-    }
-
-    .pending-badge {
-      background: #FFF8E1;
-      color: #FFC900;
-    }
+    .success-badge { background: #CEFFEB; color: #00653C; }
+    .pending-badge { background: #FFF8E1; color: #FFC900; }
 
     /* ── Typography ──────────────────────────────────────────── */
     h1 {
@@ -320,10 +314,7 @@ interface Order {
       padding: 4px 10px;
     }
 
-    .badge-pending {
-      background: #FFC900;
-      color: #1A1A1A;
-    }
+    .badge-pending { background: #FFC900; color: #1A1A1A; }
 
     /* ── Buttons ─────────────────────────────────────────────── */
     .btn-primary {
@@ -358,10 +349,7 @@ interface Order {
       font-family: 'Inter', sans-serif;
     }
 
-    .btn-secondary:hover {
-      background: #00653C;
-      color: #FFFFFF;
-    }
+    .btn-secondary:hover { background: #00653C; color: #FFFFFF; }
 
     /* ── Footer ──────────────────────────────────────────────── */
     .footer {
@@ -374,10 +362,7 @@ interface Order {
       gap: 1.5rem;
     }
 
-    .footer span {
-      font-size: 0.72rem;
-      color: #555555;
-    }
+    .footer span { font-size: 0.72rem; color: #555555; }
 
     .sep {
       width: 1px;
@@ -398,16 +383,113 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
-    const ref = this.route.snapshot.queryParamMap.get('reference');
-    if (!ref) { this.router.navigate(['/checkout']); return; }
-    this.startPolling(ref);
+    const params = this.route.snapshot.queryParamMap;
+    const txnId  = params.get('txnId');
+    const ref    = params.get('reference');
+
+    if (txnId) {
+      // Flow Stripe : on vérifie en live puis on poll la DB
+      this.startStripeFlow(Number(txnId), ref ?? '');
+    } else if (ref) {
+      // Flow Mobile Money : polling via l'ancien endpoint /api/payment/order/{ref}
+      this.startMobileMoneyPolling(ref);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
-  private startPolling(ref: string): void {
+  // ── Flow Stripe ────────────────────────────────────────────────────────────
+
+  private startStripeFlow(txnId: number, ref: string): void {
+    // Tente d'abord une vérification live pour mettre à jour la DB
+    this.paymentService.verifyPayment(txnId).subscribe({
+      next:  (res) => this.handleGatewayStatus(res, txnId, ref),
+      error: ()    => this.startGatewayPolling(txnId, ref)
+    });
+  }
+
+  private handleGatewayStatus(
+    res: { status: string; orderReference?: string; amount?: number;
+           customerName?: string; customerEmail?: string; updatedAt?: string },
+    txnId: number,
+    ref: string
+  ): void {
+    const savedState = this.readSavedState();
+
+    if (res.status === 'SUCCESS') {
+      this.order = {
+        reference:    res.orderReference ?? ref,
+        amount:       res.amount ?? savedState?.amount ?? 0,
+        status:       res.status,
+        customerName: res.customerName ?? savedState?.customerName ?? '',
+        customerEmail:res.customerEmail ?? savedState?.customerEmail ?? '',
+        airtelMoneyId: null,
+        createdAt:    res.updatedAt ?? '',
+        updatedAt:    res.updatedAt ?? ''
+      };
+      this.state = 'success';
+      sessionStorage.removeItem('checkout_state_card');
+      sessionStorage.removeItem('card_idempotency_key');
+    } else if (res.status === 'FAILED') {
+      this.router.navigate(['/paiement/echec'], {
+        queryParams: { reference: ref, error: res.status }
+      });
+    } else {
+      // PENDING/PROCESSING → on continue à poller
+      this.startGatewayPolling(txnId, ref);
+    }
+  }
+
+  private startGatewayPolling(txnId: number, ref: string): void {
+    const savedState = this.readSavedState();
+
+    this.pollSub = interval(2000).pipe(
+      startWith(0),
+      switchMap(() => this.paymentService.getTransactionStatus(txnId))
+    ).subscribe({
+      next: (res) => {
+        this.pollCount++;
+
+        if (res.status === 'SUCCESS') {
+          this.order = {
+            reference:    res.orderReference ?? ref,
+            amount:       res.amount ?? savedState?.amount ?? 0,
+            status:       res.status,
+            customerName: res.customerName ?? savedState?.customerName ?? '',
+            customerEmail:res.customerEmail ?? savedState?.customerEmail ?? '',
+            airtelMoneyId: null,
+            createdAt:    res.updatedAt ?? '',
+            updatedAt:    res.updatedAt ?? ''
+          };
+          this.state = 'success';
+          this.stop();
+          sessionStorage.removeItem('checkout_state_card');
+          sessionStorage.removeItem('card_idempotency_key');
+        } else if (res.status === 'FAILED') {
+          this.stop();
+          this.router.navigate(['/paiement/echec'], {
+            queryParams: { reference: ref, error: res.status }
+          });
+        } else if (this.pollCount >= this.MAX_POLLS) {
+          this.order = { reference: ref, amount: savedState?.amount ?? 0,
+                         status: 'PENDING', customerName: '', customerEmail: '',
+                         airtelMoneyId: null, createdAt: '', updatedAt: '' };
+          this.state = 'timeout';
+          this.stop();
+        }
+      },
+      error: () => { this.state = 'timeout'; this.stop(); }
+    });
+  }
+
+  // ── Flow Mobile Money (inchangé) ───────────────────────────────────────────
+
+  private startMobileMoneyPolling(ref: string): void {
     this.pollSub = interval(2000).pipe(
       startWith(0),
       switchMap(() => this.http.get<Order>(`/api/payment/order/${ref}`))
@@ -431,6 +513,17 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
       },
       error: () => { this.state = 'timeout'; this.stop(); }
     });
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  private readSavedState(): { amount: number; customerName: string; customerEmail: string } | null {
+    try {
+      const raw = sessionStorage.getItem('checkout_state_card');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
   private stop(): void {

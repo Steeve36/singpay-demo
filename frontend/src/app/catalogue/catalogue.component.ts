@@ -124,7 +124,7 @@ export class CatalogueComponent {
   constructor(private router: Router) {}
 
   choisir(product: Product): void {
-    this.router.navigate(['/checkout'], {
+    this.router.navigate(['/choisir-methode'], {
       queryParams: {
         product: product.name,
         amount: product.price,

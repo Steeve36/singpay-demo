@@ -1,9 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, interval, of } from 'rxjs';
 import { catchError, filter, startWith, switchMap, take, takeUntil, takeWhile, tap } from 'rxjs/operators';
 import { PaymentService, OrderStatus } from '../services/payment.service';
+import { CheckoutStateService } from '../services/checkout-state.service';
 
 @Component({
   selector: 'app-ussd-checkout',
@@ -12,12 +13,13 @@ import { PaymentService, OrderStatus } from '../services/payment.service';
   templateUrl: './ussd-checkout.component.html',
   styleUrls: ['./ussd-checkout.component.scss']
 })
-export class UssdCheckoutComponent implements OnDestroy {
+export class UssdCheckoutComponent implements OnInit, OnDestroy {
 
   @Input() amount: number = 0;
   @Input() reference: string = '';
   @Output() done = new EventEmitter<OrderStatus>();
   @Output() cancelled = new EventEmitter<void>();
+  @Output() operateurChange = new EventEmitter<'AIRTEL' | 'MOOV' | 'MAVIANCE' | ''>();
 
   step: 'operator' | 'phone' | 'confirm' | 'waiting' |
         'success' | 'failed_balance' | 'failed_pin' |
@@ -36,7 +38,16 @@ export class UssdCheckoutComponent implements OnDestroy {
 
   private stopPolling$ = new Subject<void>();
 
-  constructor(private paymentService: PaymentService) {}
+  constructor(
+    private paymentService: PaymentService,
+    private checkoutState: CheckoutStateService
+  ) {}
+
+  ngOnInit(): void {
+    const state = this.checkoutState.get();
+    if (state?.customerName)  this.customerName  = state.customerName;
+    if (state?.customerEmail) this.customerEmail = state.customerEmail;
+  }
 
   get amountFormatted(): string {
     return this.amount.toLocaleString('fr-FR') + ' FCFA';
@@ -98,10 +109,9 @@ export class UssdCheckoutComponent implements OnDestroy {
   goToPhone(): void {
     if (!this.operateur) return;
     this.phone = '';
-    this.customerName = '';
-    this.customerEmail = '';
     this.errorMsg = '';
     this.step = 'phone';
+    this.operateurChange.emit(this.operateur);
   }
 
   goToConfirm(): void {
@@ -139,6 +149,7 @@ export class UssdCheckoutComponent implements OnDestroy {
     this.statusCheckResult = null;
     this.checkingStatus = false;
     this.step = 'operator';
+    this.operateurChange.emit('');
     this.cancelled.emit();
   }
 
@@ -149,6 +160,7 @@ export class UssdCheckoutComponent implements OnDestroy {
     this.statusCheckResult = null;
     this.checkingStatus = false;
     this.step = 'operator';
+    this.operateurChange.emit('');
     this.cancelled.emit();
   }
 

@@ -1,0 +1,183 @@
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$disabled:   #F5F5F5;
+
+.method-selector {
+  margin-top: 1.5rem;
+}
+
+.selector-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  margin-bottom: 0.75rem;
+}
+
+.methods-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+.method-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: $white;
+  border: 1px solid $border;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+
+  &:hover:not(:disabled):not(.method-card--selected) {
+    border-color: #BABABA;
+    background: #FAFAFA;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &--selected {
+    border-color: $primary;
+    background: $bg-alt;
+
+    .method-icon { color: $primary; }
+  }
+
+  &--disabled {
+    background: $disabled;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.method-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: $muted;
+  transition: color 0.15s;
+}
+
+.method-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.method-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.method-sublabel {
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+.method-badge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 7px;
+  background: $secondary;
+  color: $text;
+  flex-shrink: 0;
+}
+
+// ── Radio indicator ──────────────────────────────────────────────────────────
+.method-radio {
+  width: 16px;
+  height: 16px;
+  border: 2px solid $border;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+
+  .method-card--selected & {
+    border-color: $primary;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $primary;
+  }
+}
+
+// ── Confirm button ────────────────────────────────────────────────────────────
+.btn-confirm {
+  width: 100%;
+  padding: 1rem;
+  background: $primary;
+  color: $white;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) { background: $primary-dk; }
+
+  &:disabled {
+    background: #8aad9f;
+    cursor: not-allowed;
+  }
+
+  &--loading {
+    background: $primary-dk;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

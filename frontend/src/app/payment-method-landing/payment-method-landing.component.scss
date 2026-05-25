@@ -1,0 +1,281 @@
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-page:    #FAFAFA;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$disabled:   #F5F5F5;
+$error:      #DC2626;
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
+.method-landing {
+  min-height: 100vh;
+  background: $bg-page;
+  font-family: 'Inter', sans-serif;
+  color: $text;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: $white;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &-mark {
+    width: 24px;
+    height: 24px;
+    background: $primary;
+    flex-shrink: 0;
+  }
+
+  &-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: $text;
+  }
+}
+
+.header-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $muted;
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+
+.landing-body {
+  flex: 1;
+  max-width: 560px;
+  width: 100%;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+
+  @media (max-width: 600px) {
+    margin: 1.5rem auto;
+  }
+}
+
+// ── Bouton retour ─────────────────────────────────────────────────────────────
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover { color: $primary; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+// ── Récap produit ─────────────────────────────────────────────────────────────
+
+.product-recap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: $white;
+  border: 1px solid $border;
+  border-left: 4px solid $primary;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.recap-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $muted;
+  white-space: nowrap;
+}
+
+.recap-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.recap-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $primary;
+  white-space: nowrap;
+}
+
+// ── Titre section ─────────────────────────────────────────────────────────────
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: 0.4rem;
+}
+
+.section-sub {
+  font-size: 0.82rem;
+  color: $muted;
+  margin-bottom: 1.5rem;
+}
+
+// ── Cartes méthode ────────────────────────────────────────────────────────────
+
+.methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.method-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: $white;
+  border: 1px solid $border;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &--available {
+    &:hover {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(0, 101, 60, 0.08);
+    }
+  }
+
+  &--disabled {
+    background: $disabled;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+}
+
+// ── Icône ─────────────────────────────────────────────────────────────────────
+
+.method-icon {
+  width: 44px;
+  height: 44px;
+  background: $bg-page;
+  border: 1px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $muted;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+
+  .method-card--available:hover & {
+    background: #CEFFEB;
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+// ── Texte ─────────────────────────────────────────────────────────────────────
+
+.method-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.method-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.method-sublabel {
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+// ── Statut ────────────────────────────────────────────────────────────────────
+
+.method-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.action-arrow {
+  color: $primary;
+  display: flex;
+  align-items: center;
+  transition: transform 0.15s;
+
+  .method-card--available:hover & {
+    transform: translateX(3px);
+  }
+}
+
+.action-soon {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 7px;
+  background: $secondary;
+  color: $text;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.landing-footer {
+  background: $white;
+  border-top: 1px solid $border;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+.footer-sep {
+  width: 1px;
+  height: 12px;
+  background: $border;
+}

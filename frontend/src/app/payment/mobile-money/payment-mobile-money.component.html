@@ -1,0 +1,71 @@
+<section class="pay-page" *ngIf="state">
+
+  <header class="pay-header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">QTZ-App</span>
+    </div>
+    <div class="header-secure">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="square">
+        <rect x="3" y="11" width="18" height="11" rx="0"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Paiement sécurisé
+    </div>
+  </header>
+
+  <div class="pay-body">
+
+    <!-- Récap commande -->
+    <aside class="order-summary">
+      <h2>Récapitulatif</h2>
+      <div class="summary-row">
+        <span>{{ state.productName || 'Commande' }}</span>
+        <strong>{{ totalFormatted }}</strong>
+      </div>
+      <div class="summary-ref">Réf. {{ state.orderReference }}</div>
+
+      <div class="operators-logos">
+        <p class="accepted-label">Opérateurs acceptés</p>
+        <div class="logos-row">
+          <span class="op-badge">Airtel Money</span>
+          <span class="op-badge">Moov Money</span>
+          <span class="op-badge">Maviance</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- USSD flow -->
+    <main class="pay-form">
+      <div class="pay-form-header">
+        <h2>Mobile Money</h2>
+        <img *ngIf="currentOperateur === 'AIRTEL'"   src="assets/logos/logo-airtel_money.png" alt="Airtel Money"  class="op-logo-header">
+        <img *ngIf="currentOperateur === 'MOOV'"     src="assets/logos/logo-moov_money.png"  alt="Moov Money"    class="op-logo-header">
+        <img *ngIf="currentOperateur === 'MAVIANCE'" src="assets/logos/logo-maviance.jpg"    alt="Maviance"      class="op-logo-header">
+      </div>
+
+      <div *ngIf="errorMsg" class="alert-error" role="alert">
+        <span class="alert-icon" aria-hidden="true">!</span>
+        {{ errorMsg }}
+      </div>
+
+      <app-ussd-checkout
+        *ngIf="ussdActive"
+        [amount]="state.amount"
+        [reference]="state.orderReference"
+        (done)="onPaymentDone($event)"
+        (cancelled)="onPaymentCancelled()"
+        (operateurChange)="onOperateurChange($event)">
+      </app-ussd-checkout>
+    </main>
+
+  </div>
+
+  <footer class="pay-footer">
+    <button type="button" class="back-link" (click)="changerMethode()">← Changer de méthode</button>
+    <span class="footer-sep"></span>
+    <span>© 2025 QTZ-App — Paiement sécurisé par SingPay</span>
+  </footer>
+
+</section>

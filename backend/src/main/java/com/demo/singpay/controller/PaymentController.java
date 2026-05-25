@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,6 +33,7 @@ public class PaymentController {
      * POST /api/payment/create-link
      * Angular appelle cet endpoint pour obtenir le lien de paiement SingPay.
      */
+    @Transactional
     @PostMapping("/create-link")
     public ResponseEntity<ExtLinkResponse> createLink(
             @Valid @RequestBody CreatePaymentRequest req) {
@@ -146,16 +148,15 @@ public class PaymentController {
         }
         Order order = opt.get();
         return ResponseEntity.ok(Map.of(
-            "reference",    order.getReference(),
-            "status",       order.getStatus(),
-            "amount",       order.getAmount(),
-            "operateur",    order.getOperateur()      != null ? order.getOperateur()      : "",
-            "clientMsisdn", maskMsisdn(order.getClientMsisdn()),
+            "reference",     order.getReference(),
+            "status",        order.getStatus(),
+            "amount",        order.getAmount(),
+            "operateur",     order.getOperateur()     != null ? order.getOperateur()     : "",
+            "clientMsisdn",  maskMsisdn(order.getClientMsisdn()),
             "airtelMoneyId", order.getAirtelMoneyId() != null ? order.getAirtelMoneyId() : "",
             "customerName",  order.getCustomerName()  != null ? order.getCustomerName()  : "",
-            "customerEmail", order.getCustomerEmail() != null ? order.getCustomerEmail() : "",
-            "createdAt",    order.getCreatedAt().toString(),
-            "updatedAt",    order.getUpdatedAt().toString()
+            "createdAt",     order.getCreatedAt().toString(),
+            "updatedAt",     order.getUpdatedAt().toString()
         ));
     }
 

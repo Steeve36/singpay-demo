@@ -4,8 +4,10 @@ import com.demo.singpay.model.Order;
 import com.demo.singpay.model.SingPayCallback;
 import com.demo.singpay.model.SingPayWebhookPayload;
 import com.demo.singpay.repository.OrderRepository;
+import com.demo.singpay.service.PaymentOrchestrator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +21,16 @@ public class WebhookController {
     private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
 
     private final OrderRepository orderRepo;
+    private final PaymentOrchestrator orchestrator;
+    private final String singPayWebhookSecret;
 
-    public WebhookController(OrderRepository orderRepo) {
-        this.orderRepo = orderRepo;
+    public WebhookController(
+            OrderRepository orderRepo,
+            PaymentOrchestrator orchestrator,
+            @Value("${singpay.webhook-secret:}") String singPayWebhookSecret) {
+        this.orderRepo             = orderRepo;
+        this.orchestrator          = orchestrator;
+        this.singPayWebhookSecret  = singPayWebhookSecret;
     }
 
     /**
@@ -34,9 +43,18 @@ public class WebhookController {
      *     pour éviter que SingPay rejoue le callback indéfiniment.
      */
     @PostMapping("/singpay")
-    public ResponseEntity<Void> handleCallback(@RequestBody SingPayWebhookPayload payload) {
+    public ResponseEntity<Void> handleCallback(
+            @RequestBody SingPayWebhookPayload payload,
+            @RequestParam(value = "token", required = false) String token) {
 
-        // BUG #2 — Guard null payload / transaction null
+        // Vérification du token secret si configuré
+        if (singPayWebhookSecret != null && !singPayWebhookSecret.isBlank()) {
+            if (token == null || !singPayWebhookSecret.equals(token)) {
+                log.warn("Webhook SingPay rejeté — token invalide ou absent");
+                return ResponseEntity.ok().build(); // 200 pour éviter les rejeux
+            }
+        }
+
         if (payload == null || payload.getTransaction() == null) {
             log.warn("Webhook SingPay reçu avec payload null ou transaction null");
             return ResponseEntity.ok().build();
@@ -111,6 +129,22 @@ public class WebhookController {
 
         order.setUpdatedAt(LocalDateTime.now());
         orderRepo.save(order);
+
+        // Synchronise payment_transactions si une transaction existe pour cette référence
+        try {
+            com.demo.singpay.model.enums.TxnStatus txnStatus =
+                "Success".equals(result)
+                    ? com.demo.singpay.model.enums.TxnStatus.SUCCESS
+                    : com.demo.singpay.model.enums.TxnStatus.FAILED;
+            orchestrator.applyWebhookUpdate(
+                reference,
+                txnStatus,
+                callback.getAirtelMoneyId(),
+                "Success".equals(result) ? null : result
+            );
+        } catch (Exception e) {
+            log.warn("Mise à jour PaymentTransaction ignorée pour {} : {}", reference, e.getMessage());
+        }
 
         return ResponseEntity.ok().build();
     }

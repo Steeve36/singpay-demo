@@ -39,8 +39,8 @@
 
   <!-- ÉTAPE 2 — Informations du client + numéro -->
   <div *ngIf="step === 'phone'" class="ussd-step">
-    <h3>Vos informations</h3>
     <p class="amount-display">Montant à payer : <strong>{{ amountFormatted }}</strong></p>
+    <h3>Vos informations</h3>
 
     <div class="field">
       <label>Nom complet</label>
@@ -74,6 +74,11 @@
       <span *ngIf="phone && !isPhoneValid" class="field-error">
         Numéro invalide pour {{ operateurLabel }}
       </span>
+    </div>
+
+    <div class="order-ref-display">
+      <span class="order-ref-label">Référence commande</span>
+      <span class="order-ref-value">{{ reference }}</span>
     </div>
 
     <div class="btn-group">
