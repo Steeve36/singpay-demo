@@ -7,11 +7,11 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,7 +36,8 @@ public class PaymentController {
     @Transactional
     @PostMapping("/create-link")
     public ResponseEntity<ExtLinkResponse> createLink(
-            @Valid @RequestBody CreatePaymentRequest req) {
+            @Valid @RequestBody CreatePaymentRequest req,
+            @AuthenticationPrincipal User currentUser) {
 
         // ── Idempotence : on refuse une référence déjà utilisée ──────────────
         if (orderRepo.existsByReference(req.getReference())) {
@@ -70,8 +71,7 @@ public class PaymentController {
         order.setCustomerEmail(req.getCustomerEmail());
         order.setStatus("PENDING");
         order.setPaymentLinkExpiry(singPayLink.getExp());
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+        order.setUserId(currentUser != null ? currentUser.getId() : null);
         orderRepo.save(order);
 
         log.info("Commande {} créée — lien SingPay généré (exp: {})",
@@ -86,7 +86,8 @@ public class PaymentController {
      * toutes les 5s pour savoir quand la transaction est terminée.
      */
     @PostMapping("/ussd")
-    public ResponseEntity<?> initierUssd(@Valid @RequestBody UssdPaymentRequest req) {
+    public ResponseEntity<?> initierUssd(@Valid @RequestBody UssdPaymentRequest req,
+                                         @AuthenticationPrincipal User currentUser) {
 
         // Idempotence — refuser une référence déjà connue
         if (orderRepo.existsByReference(req.getReference())) {
@@ -122,8 +123,7 @@ public class PaymentController {
         order.setCustomerEmail(req.getCustomerEmail());
         order.setSingpayTransactionId(singpayTxnId != null ? singpayTxnId : "");
         order.setStatus("PENDING");
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+        order.setUserId(currentUser != null ? currentUser.getId() : null);
         orderRepo.save(order);
 
         log.info("USSD Push initié — ref: {}, opérateur: {}, singpayTxnId: {}",
@@ -141,12 +141,19 @@ public class PaymentController {
      * Le MSISDN est masqué avant tout retour vers Angular.
      */
     @GetMapping("/order/{reference}")
-    public ResponseEntity<?> getOrder(@PathVariable String reference) {
+    public ResponseEntity<?> getOrder(@PathVariable String reference,
+                                      @AuthenticationPrincipal User currentUser) {
         Optional<Order> opt = orderRepo.findByReference(reference);
         if (opt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Order order = opt.get();
+
+        // Vérification d'appartenance — IDOR protection
+        if (order.getUserId() != null && currentUser != null
+                && !order.getUserId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(Map.of(
             "reference",     order.getReference(),
             "status",        order.getStatus(),

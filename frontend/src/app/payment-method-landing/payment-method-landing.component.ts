@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { v4 as uuidv4 } from 'uuid';
 import { CheckoutStateService } from '../services/checkout-state.service';
 
-type MethodId = 'cd' | 'mobile-money' | 'virement' | 'paypal' | 'autre';
+type MethodId = 'cd' | 'cd-integrated' | 'mobile-money' | 'virement' | 'paypal' | 'autre';
 
 interface MethodCard {
   id: MethodId;
@@ -30,9 +30,16 @@ export class PaymentMethodLandingComponent implements OnInit {
     {
       id: 'cd',
       label: 'Carte de Débit',
-      sublabel: 'Visa, Mastercard',
+      sublabel: 'Visa, Mastercard · Checkout Stripe',
       available: true,
       targetMethod: 'cd'
+    },
+    {
+      id: 'cd-integrated',
+      label: 'Carte de Débit',
+      sublabel: 'Formulaire intégré · Checkout intégré',
+      available: true,
+      targetMethod: 'cd-integrated'
     },
     {
       id: 'mobile-money',
@@ -95,6 +102,14 @@ export class PaymentMethodLandingComponent implements OnInit {
         customerEmail:  ''
       });
       this.router.navigate(['/payment/mobile-money']);
+      return;
+    }
+
+    // Checkout intégré : tout sur une seule page (nom + email + carte)
+    if (method.id === 'cd-integrated') {
+      this.router.navigate(['/payment/card-integrated'], {
+        queryParams: { product: this.productName, amount: this.amount }
+      });
       return;
     }
 

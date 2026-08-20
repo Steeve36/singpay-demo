@@ -94,7 +94,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 
           <div class="actions">
             <a routerLink="/checkout" class="btn-primary">Réessayer</a>
-            <a routerLink="/" class="btn-secondary">Accueil</a>
+            <a routerLink="/catalogue" class="btn-secondary">Accueil</a>
           </div>
 
         </div>

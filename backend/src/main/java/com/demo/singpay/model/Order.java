@@ -62,6 +62,9 @@ public class Order {
     @Column(nullable = false)
     private int attempts = 0;  // nb de tentatives sur cette référence
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
@@ -100,4 +103,6 @@ public class Order {
     public void setSingpayTransactionId(String id)        { this.singpayTransactionId = id; }
     public int getAttempts()                              { return attempts; }
     public void setAttempts(int a)                        { this.attempts = a; }
+    public Long getUserId()                               { return userId; }
+    public void setUserId(Long userId)                    { this.userId = userId; }
 }

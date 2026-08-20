@@ -1,5 +1,7 @@
 package com.demo.singpay.provider;
 
+import com.demo.singpay.dto.CreateIntentRequest;
+import com.demo.singpay.dto.CreateIntentResponse;
 import com.demo.singpay.dto.PaymentInitRequest;
 import com.demo.singpay.dto.PaymentInitResponse;
 import com.demo.singpay.dto.PaymentStatusResponse;
@@ -8,13 +10,18 @@ import com.demo.singpay.model.enums.PaymentMethod;
 import com.demo.singpay.model.enums.PaymentProviderEnum;
 import com.demo.singpay.model.enums.TxnStatus;
 import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.RequestOptions;
+import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Provider Stripe — paiement CB via Stripe Checkout (redirect).
@@ -56,7 +63,7 @@ public class StripeProvider implements PaymentProviderPort {
             SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(frontendUrl + "/paiement/succes"
-                    + "?reference=" + request.getOrderReference()
+                    + "?reference=" + URLEncoder.encode(request.getOrderReference(), StandardCharsets.UTF_8)
                     + "&txnId=" + txnId)
                 .setCancelUrl(frontendUrl + "/choisir-methode")
                 .addLineItem(
@@ -99,34 +106,95 @@ public class StripeProvider implements PaymentProviderPort {
         }
     }
 
-    /** Vérifie le statut d'une Checkout Session via l'API Stripe. providerRef = session ID (cs_…) */
+    /**
+     * Crée un PaymentIntent Stripe (paiement intégré via Stripe Elements).
+     * Retourne le client_secret nécessaire au frontend pour monter le PaymentElement.
+     */
+    public CreateIntentResponse createPaymentIntent(CreateIntentRequest request, Long txnId) {
+        try {
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount(request.getAmount().longValue())
+                .setCurrency(request.getCurrency().toLowerCase())
+                .setReceiptEmail(request.getCustomerEmail())
+                .putMetadata("order_reference", request.getOrderReference())
+                .putMetadata("internal_txn_id", String.valueOf(txnId))
+                .setAutomaticPaymentMethods(
+                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                        .setEnabled(true)
+                        .build()
+                )
+                .build();
+
+            PaymentIntent intent = PaymentIntent.create(params, requestOptions());
+            log.info("Stripe PaymentIntent {} créé pour ref {}",
+                     intent.getId(), request.getOrderReference());
+
+            return new CreateIntentResponse(intent.getClientSecret(), txnId, request.getOrderReference());
+
+        } catch (StripeException e) {
+            log.error("Erreur Stripe — création PaymentIntent : {}", e.getMessage());
+            throw new PaymentProviderUnavailableException(PaymentProviderEnum.STRIPE, e.getMessage());
+        }
+    }
+
+    /**
+     * Vérifie le statut d'une transaction via l'API Stripe.
+     * providerRef = session ID (cs_…) ou PaymentIntent ID (pi_…).
+     */
     @Override
     public PaymentStatusResponse getStatus(Long transactionId, String providerRef) {
         if (providerRef == null || providerRef.isBlank()) {
             return PaymentStatusResponse.minimal(transactionId, TxnStatus.PENDING, null, null);
         }
         try {
-            Session session = Session.retrieve(providerRef, requestOptions());
-
-            TxnStatus status;
-            String failureReason = null;
-            switch (session.getStatus()) {
-                case "complete" -> status = TxnStatus.SUCCESS;
-                case "expired"  -> {
-                    status = TxnStatus.FAILED;
-                    failureReason = "Session Stripe expirée";
-                }
-                default -> status = TxnStatus.PENDING;
+            if (providerRef.startsWith("pi_")) {
+                return getStatusFromPaymentIntent(transactionId, providerRef);
+            } else {
+                return getStatusFromSession(transactionId, providerRef);
             }
-
-            log.info("Stripe session {} — statut: {} → {}",
-                     providerRef, session.getStatus(), status);
-            return PaymentStatusResponse.minimal(transactionId, status, providerRef, failureReason);
-
         } catch (StripeException e) {
-            log.error("Erreur Stripe — vérification session {} : {}", providerRef, e.getMessage());
+            log.error("Erreur Stripe — vérification {} : {}", providerRef, e.getMessage());
             throw new PaymentProviderUnavailableException(PaymentProviderEnum.STRIPE, e.getMessage());
         }
+    }
+
+    private PaymentStatusResponse getStatusFromSession(Long txnId, String providerRef)
+            throws StripeException {
+        Session session = Session.retrieve(providerRef, requestOptions());
+        TxnStatus status;
+        String failureReason = null;
+        switch (session.getStatus()) {
+            case "complete" -> status = TxnStatus.SUCCESS;
+            case "expired"  -> {
+                status = TxnStatus.FAILED;
+                failureReason = "Session Stripe expirée";
+            }
+            default -> status = TxnStatus.PENDING;
+        }
+        log.info("Stripe session {} — statut: {} → {}", providerRef, session.getStatus(), status);
+        return PaymentStatusResponse.minimal(txnId, status, providerRef, failureReason);
+    }
+
+    private PaymentStatusResponse getStatusFromPaymentIntent(Long txnId, String providerRef)
+            throws StripeException {
+        PaymentIntent intent = PaymentIntent.retrieve(providerRef, requestOptions());
+        TxnStatus status;
+        String failureReason = null;
+        switch (intent.getStatus()) {
+            case "succeeded" -> status = TxnStatus.SUCCESS;
+            case "canceled"  -> {
+                status = TxnStatus.FAILED;
+                failureReason = "Paiement annulé";
+            }
+            case "payment_failed" -> {
+                status = TxnStatus.FAILED;
+                failureReason = "Paiement échoué";
+            }
+            default -> status = TxnStatus.PENDING;
+        }
+        log.info("Stripe PaymentIntent {} — statut: {} → {}",
+                 providerRef, intent.getStatus(), status);
+        return PaymentStatusResponse.minimal(txnId, status, providerRef, failureReason);
     }
 
     @Override

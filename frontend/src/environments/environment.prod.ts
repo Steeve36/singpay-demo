@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
-  // Remplacer par la vraie clé avant le build production
-  // En CI/CD : injecter via sed ou une variable d'environnement au moment du build
-  apiKey: 'REPLACE_WITH_PRODUCTION_API_KEY'
+  apiKey: 'REPLACE_WITH_PRODUCTION_API_KEY',
+  stripePublishableKey: 'pk_live_REPLACE_WITH_YOUR_LIVE_PUBLISHABLE_KEY'
 };

@@ -12,4 +12,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByReference(String reference);
 
     Optional<Order> findByReference(String reference);
+
+    Optional<Order> findByReferenceAndUserId(String reference, Long userId);
 }

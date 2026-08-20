@@ -3,6 +3,10 @@ package com.demo.singpay.service;
 import com.demo.singpay.model.PaymentTransaction;
 import com.demo.singpay.model.enums.TxnStatus;
 import com.demo.singpay.repository.PaymentTransactionRepository;
+import jakarta.persistence.OptimisticLockException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +22,8 @@ import java.util.Optional;
  */
 @Service
 public class PaymentTransactionService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentTransactionService.class);
 
     private final PaymentTransactionRepository txnRepo;
 
@@ -72,6 +78,7 @@ public class PaymentTransactionService {
             txn.setStatus(TxnStatus.SUCCESS);
             if (providerRef != null) txn.setProviderRef(providerRef);
             txn.setAuditLog(auditLog);
+            txn.setUpdatedAt(LocalDateTime.now());
             txnRepo.save(txn);
         });
     }
@@ -79,20 +86,32 @@ public class PaymentTransactionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void applyWebhook(String orderReference, TxnStatus newStatus,
                               String providerRef, String failureReason, String auditEntry) {
-        // Accept both PENDING and PROCESSING to survive webhooks that arrive before updateProcessing commits
-        txnRepo.findFirstByOrderReferenceAndStatusIn(
-                orderReference, List.of(TxnStatus.PENDING, TxnStatus.PROCESSING))
-            .ifPresent(txn -> {
-                txn.setStatus(newStatus);
-                if (providerRef != null) txn.setProviderRef(providerRef);
-                if (failureReason != null) txn.setFailureReason(failureReason);
-                if (auditEntry != null) {
-                    String existing = txn.getAuditLog();
-                    txn.setAuditLog((existing == null || existing.equals("[]"))
-                        ? "[" + auditEntry + "]"
-                        : existing.substring(0, existing.length() - 1) + "," + auditEntry + "]");
-                }
-                txnRepo.save(txn);
-            });
+        try {
+            txnRepo.findFirstByOrderReferenceAndStatusIn(
+                    orderReference, List.of(TxnStatus.PENDING, TxnStatus.PROCESSING))
+                .ifPresent(txn -> {
+                    txn.setStatus(newStatus);
+                    if (providerRef != null) txn.setProviderRef(providerRef);
+                    if (failureReason != null) txn.setFailureReason(failureReason);
+                    txn.setUpdatedAt(LocalDateTime.now());
+                    if (auditEntry != null) {
+                        String existing = txn.getAuditLog();
+                        txn.setAuditLog((existing == null || existing.equals("[]"))
+                            ? "[" + auditEntry + "]"
+                            : existing.substring(0, existing.length() - 1) + "," + auditEntry + "]");
+                    }
+                    txnRepo.save(txn);
+                });
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Deux webhooks simultanés — lire l'état actuel pour vérifier l'idempotence
+            txnRepo.findFirstByOrderReferenceAndStatusIn(
+                    orderReference, List.of(TxnStatus.SUCCESS, TxnStatus.FAILED, TxnStatus.REFUNDED))
+                .ifPresentOrElse(
+                    txn -> log.info("Race condition webhook ignorée — transaction {} déjà en état terminal: {}",
+                                    orderReference, txn.getStatus()),
+                    ()  -> log.warn("Race condition webhook non résolue pour {} — statut attendu: {}",
+                                    orderReference, newStatus)
+                );
+        }
     }
 }

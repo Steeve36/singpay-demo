@@ -1,0 +1,491 @@
+$primary:    #00653C;
+$primary-dk: #004d2d;
+$secondary:  #FFC900;
+$bg-alt:     #CEFFEB;
+$bg-page:    #FAFAFA;
+$white:      #FFFFFF;
+$text:       #1A1A1A;
+$muted:      #555555;
+$border:     #E0E0E0;
+$error:      #DC2626;
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
+.pay-page {
+  min-height: 100vh;
+  background: $bg-page;
+  font-family: 'Inter', sans-serif;
+  color: $text;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.pay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: $white;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  &-mark { width: 24px; height: 24px; background: $primary; flex-shrink: 0; }
+  &-name { font-weight: 700; font-size: 1rem; color: $text; }
+}
+
+.header-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 0.03em;
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+
+.pay-body {
+  display: grid;
+  grid-template-columns: 1fr 1.7fr;
+  gap: 2rem;
+  max-width: 1040px;
+  margin: 3rem auto;
+  width: 100%;
+  padding: 0 2rem;
+  flex: 1;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    margin: 1.5rem auto;
+    gap: 1rem;
+  }
+}
+
+// ── Récap commande ────────────────────────────────────────────────────────────
+
+.order-summary {
+  background: $white;
+  border: 1px solid $border;
+  padding: 1.75rem;
+  align-self: start;
+  position: sticky;
+  top: calc(60px + 2rem);
+
+  h2 {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $muted;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 2px solid $text;
+  margin-bottom: 0.5rem;
+  font-size: 0.88rem;
+  strong { font-size: 1.2rem; font-weight: 700; color: $primary; }
+}
+
+.summary-ref {
+  font-size: 0.65rem;
+  color: $muted;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 1.25rem;
+}
+
+.operators-logos { padding-top: 1.25rem; border-top: 1px solid $border; margin-bottom: 1.25rem; }
+
+.accepted-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  margin-bottom: 0.75rem;
+}
+
+.logos-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.op-badge {
+  padding: 5px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: $secondary;
+  color: $text;
+}
+
+// ── Indicateur de mode ────────────────────────────────────────────────────────
+
+.mode-indicator {
+  border-top: 1px solid $border;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.7rem;
+  color: $muted;
+  padding: 4px 6px;
+  transition: color 0.15s, background 0.15s;
+  &.mode-active { color: $primary; background: $bg-alt; font-weight: 600; }
+}
+
+// ── Formulaire (colonne droite) ───────────────────────────────────────────────
+
+.pay-form {
+  background: $white;
+  border: 1px solid $border;
+  overflow: hidden;
+}
+
+// ── Tab bar ───────────────────────────────────────────────────────────────────
+
+.tab-bar {
+  display: flex;
+  border-bottom: 2px solid $border;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0.9rem 1rem;
+  background: $bg-page;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+
+  &:hover:not(.tab-btn--active) { color: $text; }
+
+  &--active {
+    background: $white;
+    color: $primary;
+    font-weight: 700;
+    border-bottom-color: $primary;
+  }
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
+}
+
+// ── Panneau ───────────────────────────────────────────────────────────────────
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.75rem 1.25rem;
+  border-bottom: 1px solid $border;
+
+  h2 { font-size: 1.05rem; font-weight: 600; color: $text; margin: 0; }
+}
+
+.stripe-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $muted;
+  background: #F0F0F0;
+  padding: 4px 9px;
+}
+
+// ── Alerte erreur ─────────────────────────────────────────────────────────────
+
+.alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #FEF2F2;
+  border-left: 3px solid $error;
+  padding: 0.75rem 1.75rem 0.75rem 1rem;
+  color: $error;
+  font-size: 0.83rem;
+  margin: 1rem 1.75rem 0;
+
+  .alert-icon {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    background: $error;
+    color: $white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// ── Formulaire de paiement ────────────────────────────────────────────────────
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.75rem 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $muted;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid $border;
+  background: $white;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: $text;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: #AAAAAA; }
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(0, 101, 60, 0.1);
+  }
+
+  &--error {
+    border-color: $error;
+    &:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+  }
+
+  &:disabled { background: #F5F5F5; color: $muted; cursor: not-allowed; }
+}
+
+.field-error {
+  font-size: 0.72rem;
+  color: $error;
+  margin-top: 2px;
+}
+
+// ── Stripe Element host ───────────────────────────────────────────────────────
+
+.stripe-element-host {
+  min-height: 44px;
+}
+
+// ── Skeleton de chargement ────────────────────────────────────────────────────
+
+.element-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.skeleton-row { display: flex; gap: 10px; }
+
+.skeleton-line {
+  height: 42px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border: 1px solid $border;
+  &--full { width: 100%; }
+  &--half { flex: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Footer du panneau ─────────────────────────────────────────────────────────
+
+.form-footer {
+  padding-top: 0.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.amount-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F7FFF9;
+  border: 1px solid $border;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.amount-label { font-size: 0.8rem; color: $muted; }
+.amount-value { font-size: 1rem; font-weight: 700; color: $primary; }
+
+// ── Illustration redirect (onglet hébergé) ───────────────────────────────────
+
+.hosted-illustration {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1.75rem 0.5rem;
+}
+
+.hosted-icon-wrap {
+  width: 72px;
+  height: 72px;
+  background: $bg-alt;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $primary;
+}
+
+.hosted-info-text {
+  font-size: 0.85rem;
+  color: $muted;
+  line-height: 1.7;
+  text-align: center;
+  margin: 0.5rem 1.75rem 0;
+}
+
+// ── Récap onglet hébergé ──────────────────────────────────────────────────────
+
+.hosted-recap {
+  background: #F7FFF9;
+  border: 1px solid $border;
+  margin-bottom: 1rem;
+}
+
+.recap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid $border;
+  font-size: 0.83rem;
+  gap: 1rem;
+  &:last-child { border-bottom: none; }
+  span:first-child { color: $muted; font-weight: 400; white-space: nowrap; }
+  strong { font-weight: 500; text-align: right; word-break: break-all; }
+}
+
+.recap-amount { color: $primary !important; font-weight: 700 !important; font-size: 1rem !important; }
+.recap-ref    { font-family: 'Courier New', monospace; font-size: 0.72rem; color: $muted !important; }
+
+// ── Bouton payer ──────────────────────────────────────────────────────────────
+
+.btn-pay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  background: $primary;
+  color: $white;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: $primary-dk; }
+  &:disabled { background: #8aad9f; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary-dk; outline-offset: 2px; }
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.panel-disclaimer {
+  font-size: 0.72rem;
+  color: $muted;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.pay-footer {
+  background: $white;
+  border-top: 1px solid $border;
+  padding: 1.25rem 2rem;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  &:hover { text-decoration: underline; }
+}
+
+.footer-sep { width: 1px; height: 12px; background: $border; }

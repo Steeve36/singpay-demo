@@ -44,6 +44,22 @@ app:
   frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
   api-key: ${APP_API_KEY:dev-key-change-in-production}
 
+  # ── JWT ────────────────────────────────────────────────────────────────────
+  # JWT_SECRET : générer via `openssl rand -base64 32` (256 bits minimum)
+  # La valeur par défaut ci-dessous est UNIQUEMENT pour le dev local — JAMAIS en prod
+  jwt:
+    secret: ${JWT_SECRET:c2luZ3BheURlbW9EZXZTZWNyZXRLZXlOZXZlclVzZUluUHJvZHVjdGlvbk9ubHlGb3JMb2NhbERldjI=}
+    expiry-ms: ${JWT_EXPIRY_MS:900000}           # access token : 15 minutes
+    refresh-expiry-days: ${JWT_REFRESH_DAYS:7}   # refresh token : 7 jours
+    cookie-secure: ${JWT_COOKIE_SECURE:false}     # true en prod (HTTPS uniquement)
+
+  # ── Proxy de confiance (rate limiter) ─────────────────────────────────────
+  # IPs des reverse proxies de confiance (Nginx, Cloudflare) — vide = désactivé
+  trusted-proxy-ips: ${TRUSTED_PROXY_IPS:}
+
+  # ── Webhook SingPay (HMAC) ─────────────────────────────────────────────────
+  singpay-webhook-hmac-secret: ${SINGPAY_WEBHOOK_HMAC_SECRET:}
+
 # ── Stripe ────────────────────────────────────────────────────────────────────
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:}
@@ -52,8 +68,8 @@ stripe:
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:
   level:
-    com.demo.singpay: DEBUG
-    org.springframework.web.client: DEBUG
+    "[com.demo.singpay]": DEBUG
+    "[org.springframework.web.client]": DEBUG
 
 ---
 # Profil production
@@ -68,5 +84,5 @@ spring:
 
 logging:
   level:
-    com.demo.singpay: INFO
-    org.springframework.web.client: WARN
+    "[com.demo.singpay]": INFO
+    "[org.springframework.web.client]": WARN

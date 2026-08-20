@@ -31,7 +31,7 @@ export class PaymentCardComponent implements OnInit {
   ngOnInit(): void {
     this.state = this.checkoutState.get();
     if (!this.state) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/catalogue']);
       return;
     }
     // Reuse existing key across page reloads to prevent duplicate charges

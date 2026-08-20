@@ -12,11 +12,12 @@ export interface CartItem {
 }
 
 const METHOD_ROUTES: Record<string, string> = {
-  'mobile-money': '/payment/mobile-money',
-  'cd':           '/payment/card',
-  'virement':     '/payment/bank-transfer',
-  'paypal':       '/payment/card',
-  'autre':        '/payment/card',
+  'mobile-money':  '/payment/mobile-money',
+  'cd':            '/payment/card',
+  'cd-integrated': '/payment/card-integrated',
+  'virement':      '/payment/bank-transfer',
+  'paypal':        '/payment/card',
+  'autre':         '/payment/card',
 };
 
 @Component({

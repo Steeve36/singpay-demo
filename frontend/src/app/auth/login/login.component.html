@@ -1,0 +1,73 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/>
+        <line x1="2" y1="10" x2="22" y2="10"/>
+        <line x1="6" y1="15" x2="9" y2="15"/>
+        <line x1="11" y1="15" x2="14" y2="15"/>
+      </svg>
+      <span class="auth-brand">SingPay</span>
+    </div>
+
+    <h1 class="auth-title">Connexion</h1>
+    <p class="auth-subtitle">Accédez à votre espace de paiement sécurisé</p>
+
+    @if (success()) {
+      <div class="auth-success" role="status">{{ success() }}</div>
+    }
+
+    @if (error()) {
+      <div class="auth-error" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="email">Adresse email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="vous@exemple.com"
+          autocomplete="email"
+          [class.invalid]="email.invalid && email.touched"
+        />
+        @if (email.invalid && email.touched) {
+          <span class="field-error">Email invalide</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          [class.invalid]="password.invalid && password.touched"
+        />
+        @if (password.invalid && password.touched) {
+          <span class="field-error">Mot de passe requis</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Connexion…
+        } @else {
+          Se connecter
+        }
+      </button>
+
+    </form>
+
+    <p class="auth-footer">
+      Pas encore de compte ?
+      <a routerLink="/register">Créer un compte</a>
+    </p>
+
+  </div>
+</div>

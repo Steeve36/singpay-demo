@@ -29,7 +29,7 @@ export class PaymentMobilemoneyComponent implements OnInit {
     this.state = this.checkoutState.get();
     if (!this.state) {
       // Pas d'état de checkout — retour à la page d'accueil
-      this.router.navigate(['/']);
+      this.router.navigate(['/catalogue']);
     }
   }
 

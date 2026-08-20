@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -27,8 +26,10 @@ import java.io.IOException;
  * utilisée par le serveur du marchand, pas directement par le frontend.
  * Pour ce démo standalone Angular + Spring Boot, elle est dans le frontend
  * comme une clé de session.
+ *
+ * @deprecated Remplacé par JwtAuthFilter + Spring Security. Conservé pour référence.
  */
-@Component
+// @Component — désactivé : Spring Security (JwtAuthFilter) gère désormais l'auth sur /api/**
 public class ApiKeyFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(ApiKeyFilter.class);
@@ -84,7 +85,9 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
-        // N'applique ce filtre qu'aux routes /api/**
-        return !path.startsWith("/api/");
+        // Exclure les routes auth et webhooks — même si ce filtre était réactivé
+        return !path.startsWith("/api/")
+            || path.startsWith("/api/auth/")
+            || path.startsWith("/api/webhooks/");
     }
 }

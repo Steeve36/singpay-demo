@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -47,9 +49,9 @@ public class WebhookController {
             @RequestBody SingPayWebhookPayload payload,
             @RequestParam(value = "token", required = false) String token) {
 
-        // Vérification du token secret si configuré
+        // Vérification du token secret si configuré — comparaison en temps constant
         if (singPayWebhookSecret != null && !singPayWebhookSecret.isBlank()) {
-            if (token == null || !singPayWebhookSecret.equals(token)) {
+            if (token == null || !constantTimeEquals(singPayWebhookSecret, token)) {
                 log.warn("Webhook SingPay rejeté — token invalide ou absent");
                 return ResponseEntity.ok().build(); // 200 pour éviter les rejeux
             }
@@ -107,6 +109,14 @@ public class WebhookController {
                     order.setStatus("FRAUD_SUSPECTED");
                     order.setUpdatedAt(LocalDateTime.now());
                     orderRepo.save(order);
+                    // Propager FRAUD_SUSPECTED vers payment_transactions
+                    try {
+                        orchestrator.applyWebhookUpdate(reference,
+                            com.demo.singpay.model.enums.TxnStatus.FAILED,
+                            null, "FRAUD_SUSPECTED: montant incohérent");
+                    } catch (Exception ex) {
+                        log.warn("Propagation FRAUD_SUSPECTED ignorée pour {} : {}", reference, ex.getMessage());
+                    }
                     return ResponseEntity.ok().build();
                 }
             } catch (NumberFormatException e) {
@@ -147,5 +157,12 @@ public class WebhookController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    private boolean constantTimeEquals(String a, String b) {
+        return MessageDigest.isEqual(
+            a.getBytes(StandardCharsets.UTF_8),
+            b.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }

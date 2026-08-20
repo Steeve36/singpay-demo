@@ -68,6 +68,13 @@ public class PaymentTransaction {
     @Column(name = "customer_email", length = 150)
     private String customerEmail;
 
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Version
+    @Column(nullable = false)
+    private Integer version = 0;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -129,6 +136,11 @@ public class PaymentTransaction {
 
     public String getCustomerEmail() { return customerEmail; }
     public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public Integer getVersion() { return version; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

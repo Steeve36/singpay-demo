@@ -205,7 +205,7 @@ export class PaymentBankTransferComponent implements OnInit {
   ngOnInit(): void {
     this.state = this.checkoutState.get();
     if (!this.state) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/catalogue']);
     }
   }
 }

@@ -9,6 +9,7 @@ target/
 *.iml
 .vscode/
 .claude/
+CLAUDE.md
 
 # Logs
 *.log

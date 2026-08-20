@@ -91,7 +91,7 @@ interface Order {
             </div>
           </div>
 
-          <a routerLink="/" class="btn-primary">Retour à l'accueil</a>
+          <a routerLink="/catalogue" class="btn-primary">Retour à l'accueil</a>
         </div>
 
         <!-- Timeout / En attente -->
@@ -122,7 +122,7 @@ interface Order {
             </div>
           </div>
 
-          <a routerLink="/" class="btn-secondary">Retour à l'accueil</a>
+          <a routerLink="/catalogue" class="btn-secondary">Retour à l'accueil</a>
         </div>
 
       </main>
@@ -399,7 +399,7 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
       // Flow Mobile Money : polling via l'ancien endpoint /api/payment/order/{ref}
       this.startMobileMoneyPolling(ref);
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/catalogue']);
     }
   }
 
@@ -435,6 +435,9 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
       this.state = 'success';
       sessionStorage.removeItem('checkout_state_card');
       sessionStorage.removeItem('card_idempotency_key');
+      sessionStorage.removeItem('card_integrated_idem_key');
+      sessionStorage.removeItem('card_hosted_idem_key');
+      sessionStorage.removeItem('card_integrated_ref');
     } else if (res.status === 'FAILED') {
       this.router.navigate(['/paiement/echec'], {
         queryParams: { reference: ref, error: res.status }

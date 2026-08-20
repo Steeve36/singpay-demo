@@ -95,6 +95,21 @@ export interface ExtLinkResponse {
   exp: string;
 }
 
+export interface CreateIntentRequest {
+  amount: number;
+  currency: string;
+  orderReference: string;
+  idempotencyKey: string;
+  customerName: string;
+  customerEmail: string;
+}
+
+export interface CreateIntentResponse {
+  clientSecret: string;
+  transactionId: number;
+  orderReference: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly API     = '/api/payment';
@@ -129,5 +144,10 @@ export class PaymentService {
   /** Vérifie en live le statut auprès du provider (ex: Stripe) et met à jour la DB. */
   verifyPayment(transactionId: number): Observable<PaymentStatusResponse> {
     return this.http.get<PaymentStatusResponse>(`${this.GW_API}/${transactionId}/verify`);
+  }
+
+  /** Crée un Stripe PaymentIntent pour le checkout intégré (Stripe Elements). */
+  createPaymentIntent(req: CreateIntentRequest): Observable<CreateIntentResponse> {
+    return this.http.post<CreateIntentResponse>(`${this.GW_API}/create-intent`, req);
   }
 }

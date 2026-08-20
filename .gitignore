@@ -1,13 +1,28 @@
-# Secrets
+# Secrets — ne jamais commiter
 .env
 *.env.local
 
 # Claude Code
 .claude/
+CLAUDE.md
+
+# Build Maven
+target/
+
+# Build Angular
+dist/
+.angular/cache/
+
+# Dépendances
+node_modules/
 
 # IDE
 .vscode/
 .idea/
+*.iml
+
+# Logs
+*.log
 
 # OS
 .DS_Store

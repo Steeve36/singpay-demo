@@ -14,7 +14,13 @@ public class PaymentInitRequest {
 
     @NotBlank(message = "La devise est obligatoire")
     @Size(min = 3, max = 3, message = "La devise doit faire 3 caractères (ex: XAF)")
+    @Pattern(regexp = "^(XAF|EUR|USD)$", message = "Devise non autorisée")
     private String currency;
+
+    // Slug du produit — requis pour la validation du prix côté serveur
+    @NotBlank(message = "L'identifiant produit est obligatoire")
+    @Size(max = 100)
+    private String productSlug;
 
     @NotBlank(message = "La référence commande est obligatoire")
     @Size(max = 64)
@@ -82,6 +88,9 @@ public class PaymentInitRequest {
 
     public String getSubtype() { return subtype; }
     public void setSubtype(String subtype) { this.subtype = subtype; }
+
+    public String getProductSlug() { return productSlug; }
+    public void setProductSlug(String s) { this.productSlug = s; }
 
     public Long getInternalTxnId() { return internalTxnId; }
     public void setInternalTxnId(Long internalTxnId) { this.internalTxnId = internalTxnId; }
